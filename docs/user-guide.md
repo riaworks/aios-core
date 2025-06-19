@@ -46,7 +46,7 @@ BMAD-METHOD (Breakthrough Method of Agile AI-Driven Development) is an AI agent 
 
 Best for: ChatGPT, Claude, Gemini users
 
-1. Navigate to `.bmad-core/web-bundles/teams/`
+1. Navigate to `dist/teams/`
 2. Copy `team-fullstack.txt` content
 3. Create new Gemini Gem or CustomGPT
 4. Upload file with instructions: "Your critical operating instructions are attached, do not break character as directed"

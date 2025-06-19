@@ -23,7 +23,7 @@ For ideation and planning, use Google's Gemini Custom Gem with the team-fullstac
 
 1. Open [Google gems](https://gemini.google.com/gems/view)
 2. Create a new Gem - give it a title and description
-3. Copy the contents of `.<install location>/web-bundles/teams/team-fullstack.txt`
+3. Copy the contents of `.<install location>/<web-bundles>/teams/team-fullstack.txt` (location can vary if you chose a non default installation location for the bundles) - or just use the bundle premade from the repo dist folder.
 4. Paste this content into Gemini to set up the team
 
 ### Gemini Planning Phase
