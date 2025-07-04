@@ -1,4 +1,4 @@
-# BMad-METHOD: Universal AI Agent Framework
+# BMad-Method: Universal AI Agent Framework
 
 [![Version](https://img.shields.io/npm/v/bmad-method?color=blue&label=version)](https://www.npmjs.com/package/bmad-method)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -11,13 +11,13 @@ Foundations in Agentic Agile Driven Development, known as the Breakthrough Metho
 
 **[Join our Discord Community](https://discord.gg/gk8jAdXWmj)** - A growing community for AI enthusiasts! Get help, share ideas, explore AI agents & frameworks, collaborate on tech projects, enjoy hobbies, and help each other succeed. Whether you're stuck on BMad, building your own agents, or just want to chat about the latest in AI - we're here for you!
 
-⭐ **If you find this project helpful or useful, please give it a star in the upper right hand corner!** It helps others discover BMad-METHOD and you will be notified of updates!
+⭐ **If you find this project helpful or useful, please give it a star in the upper right hand corner!** It helps others discover BMad-Method and you will be notified of updates!
 
 ## Quick Navigation
 
-### 🚨 MUST READ: Understanding the BMAD Workflow
+### 🚨 MUST READ: Understanding the BMad Workflow
 
-**Before diving in, review these critical workflow diagrams that explain how BMAD works:**
+**Before diving in, review these critical workflow diagrams that explain how BMad works:**
 
 1. **[Planning Workflow (Web UI)](docs/user-guide.md#the-planning-workflow-web-ui)** - How to create PRD and Architecture documents
 2. **[Core Development Cycle (IDE)](docs/user-guide.md#the-core-development-cycle-ide)** - How SM, Dev, and QA agents collaborate through story files
@@ -27,7 +27,7 @@ Foundations in Agentic Agile Driven Development, known as the Breakthrough Metho
 ### What would you like to do?
 
 - **[Build software with Full Stack Agile AI Team](#-quick-start)** → Quick Start Instruction
-- **[Learn how to use BMAD](docs/user-guide.md)** → Complete user guide and walkthrough
+- **[Learn how to use BMad](docs/user-guide.md)** → Complete user guide and walkthrough
 - **[See available AI agents](#available-agents)** → Specialized roles for your team
 - **[Explore non-technical uses](#-beyond-software-development---expansion-packs)** → Creative writing, business, wellness, education
 - **[Create my own AI agents](#creating-your-own-expansion-pack)** → Build agents for your domain
@@ -47,12 +47,12 @@ Foundations in Agentic Agile Driven Development, known as the Breakthrough Metho
 
 - **[Installation](#installation)** → Get started in minutes
 - **[Documentation](#documentation--guides)** → All guides and references
-- **[Contributing](#contributing)** → Help improve BMAD
+- **[Contributing](#contributing)** → Help improve BMad
 - **[Support](#support)** → Get help and connect
 
 ## Important: Keep Your BMad Installation Updated
 
-**Stay up-to-date effortlessly!** If you already have BMad-METHOD installed in your project, simply run:
+**Stay up-to-date effortlessly!** If you already have BMad-Method installed in your project, simply run:
 
 ```bash
 npx bmad-method install
@@ -208,7 +208,7 @@ Many of the Agents and Templates for docs, and some tasks, include Advanced Elic
 
 ## Usage
 
-The BMAD Method follows a structured Agile workflow with specialized AI agents. For complete usage instructions and walkthroughs, see the **[User Guide](docs/user-guide.md)**.
+The BMad Method follows a structured Agile workflow with specialized AI agents. For complete usage instructions and walkthroughs, see the **[User Guide](docs/user-guide.md)**.
 
 ### Quick Start Examples
 
@@ -274,12 +274,12 @@ See the **[Core Architecture](docs/core-architecture.md)** for the complete sour
 ### Architecture & Technical
 
 - 🏗️ [Core Architecture](docs/core-architecture.md) - Complete technical architecture and system design
-- 📖 [User Guide](docs/user-guide.md) - Comprehensive guide to using BMAD-METHOD effectively
-- 🚀 [Expansion Packs Guide](docs/expansion-packs.md) - Extend BMAD to any domain beyond software development
+- 📖 [User Guide](docs/user-guide.md) - Comprehensive guide to using BMad-Method effectively
+- 🚀 [Expansion Packs Guide](docs/expansion-packs.md) - Extend BMad to any domain beyond software development
 
 ### Workflow Guides
 
-- 📚 [Universal BMAD Workflow Guide](docs/bmad-workflow-guide.md) - Core workflow that applies to all IDEs
+- 📚 [Universal BMad Workflow Guide](docs/bmad-workflow-guide.md) - Core workflow that applies to all IDEs
 - 🏗️ [Working in the Brownfield Guide](docs/working-in-the-brownfield.md) - Complete guide for enhancing existing projects
 
 ### IDE-Specific Guides
@@ -294,7 +294,7 @@ See the **[Core Architecture](docs/core-architecture.md)** for the complete sour
 
 ## 🌟 Beyond Software Development - Expansion Packs
 
-While BMad excels at software development, its natural language framework can structure expertise in ANY domain. Expansion packs transform BMAD into a universal AI agent system for creative writing, business strategy, health & wellness, education, and much more.
+While BMad excels at software development, its natural language framework can structure expertise in ANY domain. Expansion packs transform BMad into a universal AI agent system for creative writing, business strategy, health & wellness, education, and much more.
 
 ### Available Expansion Packs
 
@@ -341,9 +341,9 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 - **Current**: [v4](https://github.com/bmadcode/bmad-method) - Complete framework rewrite with CLI installer, dynamic dependencies, and expansion packs
 - **Previous Versions**:
-  - [Version 3](https://github.com/bmadcode/BMAD-METHOD/tree/V3) - Introduced the unified BMAD Agent and Gemini optimization
-  - [Version 2](https://github.com/bmadcode/BMAD-METHOD/tree/V2) - Added web agents and template separation
-  - [Version 1](https://github.com/bmadcode/BMAD-METHOD/tree/V1) - Original 7-file proof of concept
+  - [Version 3](https://github.com/bmadcode/BMad-Method/tree/V3) - Introduced the unified BMad Agent and Gemini optimization
+  - [Version 2](https://github.com/bmadcode/BMad-Method/tree/V2) - Added web agents and template separation
+  - [Version 1](https://github.com/bmadcode/BMad-Method/tree/V1) - Original 7-file proof of concept
 
 See [versions.md](docs/versions.md) for detailed version history and migration guides.
 
@@ -360,7 +360,7 @@ Created by Brian (BMad) Madison
 To ensure your contribution aligns with the BMad Method and gets merged smoothly:
 
 1. 📋 **Read [CONTRIBUTING.md](CONTRIBUTING.md)** - Our contribution guidelines, PR requirements, and process
-2. 🎯 **Read [GUIDING-PRINCIPLES.md](GUIDING-PRINCIPLES.md)** - Core principles that keep BMAD powerful through simplicity
+2. 🎯 **Read [GUIDING-PRINCIPLES.md](GUIDING-PRINCIPLES.md)** - Core principles that keep BMad powerful through simplicity
 3. 🆕 **New to GitHub?** Start with our [Pull Request Guide](docs/how-to-contribute-with-pull-requests.md)
 
 ### Key Points to Remember

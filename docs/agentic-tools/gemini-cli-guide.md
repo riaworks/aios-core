@@ -1,6 +1,6 @@
-# BMAD Method Guide for Gemini CLI
+# BMad Method Guide for Gemini CLI
 
-This guide covers Gemini CLI-specific setup and usage with BMAD Method. For the complete workflow, see the [BMAD Workflow Guide](../bmad-workflow-guide.md).
+This guide covers Gemini CLI-specific setup and usage with BMad Method. For the complete workflow, see the [BMad Workflow Guide](../bmad-workflow-guide.md).
 
 ## Installation
 
@@ -9,7 +9,7 @@ When running `npx bmad-method install`, select **Gemini CLI** as your IDE. This 
 - `.gemini/agents/` directory with all agent context files
 - `.gemini/settings.json` configured to load all agents automatically
 
-## Using BMAD Agents with Gemini CLI
+## Using BMad Agents with Gemini CLI
 
 Simply mention the agent in your prompt:
 

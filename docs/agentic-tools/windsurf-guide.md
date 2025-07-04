@@ -1,6 +1,6 @@
-# BMAD Method Guide for Windsurf
+# BMad Method Guide for Windsurf
 
-This guide covers Windsurf-specific setup and usage with BMAD Method. For the complete workflow, see the [BMAD Workflow Guide](../bmad-workflow-guide.md).
+This guide covers Windsurf-specific setup and usage with BMad Method. For the complete workflow, see the [BMad Workflow Guide](../bmad-workflow-guide.md).
 
 ## Installation
 
@@ -9,7 +9,7 @@ When running `npx bmad-method install`, select **Windsurf** as your IDE. This cr
 - `.bmad-core/` folder with all agents
 - `.windsurf/rules/` folder with agent rule files (`.md`)
 
-## Using BMAD Agents in Windsurf
+## Using BMad Agents in Windsurf
 
 Type `@agent-name` in chat to activate an agent:
 
@@ -27,7 +27,7 @@ Type `@agent-name` in chat to activate an agent:
 
 - **Rule files**: Stored in `.windsurf/rules/` as `.md` files
 - **Activation**: Use `@` prefix to mention agents
-- **Collaborative features**: Works well with BMAD's agent-switching pattern
+- **Collaborative features**: Works well with BMad's agent-switching pattern
 - **Project context**: Agents have access to your full project context
 
 ## Tips for Windsurf Users

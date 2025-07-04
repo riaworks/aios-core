@@ -1,10 +1,10 @@
-# BMAD-METHOD Agentic Agile Driven Development User Guide
+# BMad-Method Agentic Agile Driven Development User Guide
 
 This comprehensive guide will help you understand and effectively use the BMad Method framework for AI-assisted software development.
 
 ## Table of Contents
 
-1. [Understanding BMAD](#understanding-bmad)
+1. [Understanding BMad](#understanding-bmad)
 2. [Getting Started](#getting-started)
 3. [Agent System](#agent-system)
 4. [Templates and Document Creation](#templates-and-document-creation)
@@ -16,11 +16,11 @@ This comprehensive guide will help you understand and effectively use the BMad M
 10. [Troubleshooting](#troubleshooting)
 11. [Best Practices](#best-practices)
 
-## Understanding BMAD
+## Understanding BMad
 
-### What is BMAD-METHOD?
+### What is BMad-Method?
 
-BMAD-METHOD (Breakthrough Method of Agile AI-Driven Development) is an AI agent orchestration framework that provides specialized AI agents for every role in a complete Agile development team. Unlike generic AI assistants, each BMAD agent has deep expertise in their specific domain and can collaborate to deliver complete software projects.
+BMad-Method (Breakthrough Method of Agile AI-Driven Development) is an AI agent orchestration framework that provides specialized AI agents for every role in a complete Agile development team. Unlike generic AI assistants, each BMad agent has deep expertise in their specific domain and can collaborate to deliver complete software projects.
 
 ### Core Principles
 
@@ -30,7 +30,7 @@ BMAD-METHOD (Breakthrough Method of Agile AI-Driven Development) is an AI agent 
 4. **Dynamic Dependencies**: Agents only load resources they need
 5. **Platform Agnostic**: Works with any AI platform or IDE
 
-### When to Use BMAD
+### When to Use BMad
 
 - **New Projects (Greenfield)**: Complete end-to-end development
 - **Existing Projects (Brownfield)**: Feature additions and enhancements
@@ -83,7 +83,7 @@ npx bmad-method status
 
 ### Upgrading from V3 to V4
 
-If you have an existing BMAD-METHOD V3 project, simply run the installer in your project directory:
+If you have an existing BMad-Method V3 project, simply run the installer in your project directory:
 
 ```bash
 npx bmad-method install
@@ -104,7 +104,7 @@ After upgrading:
 2. Optionally run the `doc-migration-task` to align your documents with V4 templates - you can do this with your agent by saying something like: 'run {drag in task} against {drag prd or arch file from docs} to align with {drag the template from .bmad-core/templates/full-stack-architecture.md}'
 3. If you have separate front-end and backend architecture docs you can modify step 2 to merge both into a single full stack architecture or separate Front and Back end.
 
-The reason #2 and #3 are optional is because now BMAD V4 makes sharding optional for the SM. See [Core Configuration](#core-configuration)
+The reason #2 and #3 are optional is because now BMad V4 makes sharding optional for the SM. See [Core Configuration](#core-configuration)
 
 **Note**: The agents in `.bmad-core/` fully replace the items in `bmad-agent/` - you can remove the backup folder versions.
 
@@ -181,7 +181,7 @@ dependencies:
 
 ### Understanding Templates
 
-BMAD templates are **self-contained and interactive** - they embed both the desired document output and the LLM instructions needed to work with users. This means no separate task is needed for most document creation.
+BMad templates are **self-contained and interactive** - they embed both the desired document output and the LLM instructions needed to work with users. This means no separate task is needed for most document creation.
 
 #### Template Structure
 
@@ -283,7 +283,7 @@ This provides 10 structured brainstorming actions:
 
 ### The Planning Workflow (Web UI)
 
-Before development begins, BMAD follows a structured planning workflow that's ideally done in web UI for cost efficiency:
+Before development begins, BMad follows a structured planning workflow that's ideally done in web UI for cost efficiency:
 
 ```mermaid
 graph TD
@@ -320,7 +320,7 @@ graph TD
 
 ### The Core Development Cycle (IDE)
 
-Once planning is complete and documents are sharded, BMAD follows a structured development workflow:
+Once planning is complete and documents are sharded, BMad follows a structured development workflow:
 
 ```mermaid
 graph TD
@@ -1039,7 +1039,7 @@ Agents can reference and load documents from the `docs/` folder:
 
 ### Technical Preferences System
 
-BMAD includes a powerful personalization system through the `technical-preferences.md` file located in `.bmad-core/data/`.
+BMad includes a powerful personalization system through the `technical-preferences.md` file located in `.bmad-core/data/`.
 
 #### What is technical-preferences.md?
 
@@ -1133,11 +1133,11 @@ When creating custom web bundles or uploading to AI platforms, include your `tec
 
 ### Core Configuration
 
-The `bmad-core/core-config.yaml` file is a critical V4 innovation that enables BMAD to work seamlessly with any project structure, providing maximum flexibility and backwards compatibility.
+The `bmad-core/core-config.yaml` file is a critical V4 innovation that enables BMad to work seamlessly with any project structure, providing maximum flexibility and backwards compatibility.
 
 #### Understanding core-config.yaml
 
-This configuration file acts as a map for BMAD agents, telling them exactly where to find your project documents and how they're structured. It's what makes V4 agents intelligent enough to work with V3 projects, custom layouts, or any document organization you prefer.
+This configuration file acts as a map for BMad agents, telling them exactly where to find your project documents and how they're structured. It's what makes V4 agents intelligent enough to work with V3 projects, custom layouts, or any document organization you prefer.
 
 #### Configuration Structure
 
@@ -1347,7 +1347,7 @@ customTechnicalDocuments:
 
 #### Best Practices
 
-1. **Always Configure for Your Structure**: Don't force your project to match BMAD defaults
+1. **Always Configure for Your Structure**: Don't force your project to match BMad defaults
 2. **Keep devLoadAlwaysFiles Focused**: Only include files needed for every dev task
 3. **Use Debug Log**: Enable when troubleshooting story implementation issues
 4. **Version Control core-config.yaml**: Track changes to understand project evolution
@@ -1433,7 +1433,7 @@ Add specialized capabilities:
 
 ```text
 project/
-├── .bmad-core/          # BMAD agents and resources
+├── .bmad-core/          # BMad agents and resources
 ├── docs/                # Generated documentation
 │   ├── prd.md
 │   ├── architecture.md
@@ -1445,7 +1445,7 @@ project/
 #### Document Management
 
 - Keep generated docs in `docs/` folder
-- Version control all BMAD-generated content
+- Version control all BMad-generated content
 - Regular backups of `.bmad-core/` customizations
 
 ### Recommended Development Flow
@@ -1512,7 +1512,7 @@ project/
 
 ## Conclusion
 
-BMAD-METHOD provides a comprehensive framework for AI-assisted software development. By following this guide, you'll be able to:
+BMad-Method provides a comprehensive framework for AI-assisted software development. By following this guide, you'll be able to:
 
 - Effectively use specialized AI agents
 - Create professional documentation
@@ -1520,7 +1520,7 @@ BMAD-METHOD provides a comprehensive framework for AI-assisted software developm
 - Integrate with your preferred tools
 - Maintain high quality standards
 
-Remember: BMAD is designed to enhance your development process, not replace your expertise. Use it as a powerful tool to accelerate your projects while maintaining control over design decisions and implementation details.
+Remember: BMad is designed to enhance your development process, not replace your expertise. Use it as a powerful tool to accelerate your projects while maintaining control over design decisions and implementation details.
 
 ---
 

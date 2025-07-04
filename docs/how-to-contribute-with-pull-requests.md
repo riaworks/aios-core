@@ -22,7 +22,7 @@ A pull request (PR) is how you propose changes to a project on GitHub. Think of 
 
 ### 1. Fork the Repository
 
-1. Go to the [BMAD-METHOD repository](https://github.com/bmadcode/bmad-method)
+1. Go to the [BMad-Method repository](https://github.com/bmadcode/bmad-method)
 2. Click the "Fork" button in the top-right corner
 3. This creates your own copy of the project
 

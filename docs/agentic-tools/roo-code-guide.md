@@ -1,6 +1,6 @@
-# BMAD Method Guide for Roo Code
+# BMad Method Guide for Roo Code
 
-This guide covers Roo Code-specific setup and usage with BMAD Method. For the complete workflow, see the [BMAD Workflow Guide](../bmad-workflow-guide.md).
+This guide covers Roo Code-specific setup and usage with BMad Method. For the complete workflow, see the [BMad Workflow Guide](../bmad-workflow-guide.md).
 
 ## Installation
 
@@ -9,7 +9,7 @@ When running `npx bmad-method install`, select **Roo Code** as your IDE. This cr
 - `.bmad-core/` folder with all agents
 - `.roomodes` file in project root with custom modes
 
-## Using BMAD Agents in Roo Code
+## Using BMad Agents in Roo Code
 
 Select mode from the mode selector (usually in status bar):
 

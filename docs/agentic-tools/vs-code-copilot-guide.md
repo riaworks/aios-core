@@ -1,6 +1,6 @@
-# BMAD Method Guide for Visual Studio Code
+# BMad Method Guide for Visual Studio Code
 
-This guide covers the setup and usage of the BMAD Method in Visual Studio Code. For the complete workflow, see the [BMAD Workflow Guide](../bmad-workflow-guide.md).
+This guide covers the setup and usage of the BMad Method in Visual Studio Code. For the complete workflow, see the [BMad Workflow Guide](../bmad-workflow-guide.md).
 
 ## Installation
 
@@ -10,7 +10,7 @@ When running `npx bmad-method install`, select **Visual Studio Code** as your ID
 
 - Create the `.vscode/` directory and add a `settings.json` file with the basic configuration to enable GitHub Copilot's agent mode.
 
-## Using BMAD Agents in VS Code
+## Using BMad Agents in VS Code
 
 1. In the GitHub Copilot Chat window, select **Agent** from the chat mode dropdown list (usually located next to the input field).
 
@@ -40,7 +40,7 @@ When running `npx bmad-method install`, select **Visual Studio Code** as your ID
 
 - **Activation**: Use the `@` prefix in the GitHub Copilot Chat for instant switching between agents.
 
-- **Collaboration**: Fully compatible with **Live Share**, allowing you, your team, and BMAD agents to work together in real-time.
+- **Collaboration**: Fully compatible with **Live Share**, allowing you, your team, and BMad agents to work together in real-time.
 
 - **Project Context**: Agents have full access to your workspace, including open files and the selected code.
 

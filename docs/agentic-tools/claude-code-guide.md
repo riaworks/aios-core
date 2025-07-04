@@ -1,6 +1,6 @@
-# BMAD Method Guide for Claude Code
+# BMad Method Guide for Claude Code
 
-This guide covers Claude Code-specific setup and usage with BMAD Method. For the complete workflow, see the [BMAD Workflow Guide](../bmad-workflow-guide.md).
+This guide covers Claude Code-specific setup and usage with BMad Method. For the complete workflow, see the [BMad Workflow Guide](../bmad-workflow-guide.md).
 
 ## Installation
 
@@ -9,7 +9,7 @@ When running `npx bmad-method install`, select **Claude Code** as your IDE. This
 - `.bmad-core/` folder with all agents
 - `.claude/commands/` folder with agent command files (`.md`)
 
-## Using BMAD Agents in Claude Code
+## Using BMad Agents in Claude Code
 
 Type `/agent-name` in your chat to activate an agent:
 

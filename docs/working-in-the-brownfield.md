@@ -353,6 +353,6 @@ Is this a major enhancement affecting multiple systems?
 
 ## Conclusion
 
-Brownfield development with BMAD-METHOD provides structure and safety when modifying existing systems. The key is providing comprehensive context through documentation, using specialized templates that consider integration requirements, and following workflows that respect existing constraints while enabling progress.
+Brownfield development with BMad-Method provides structure and safety when modifying existing systems. The key is providing comprehensive context through documentation, using specialized templates that consider integration requirements, and following workflows that respect existing constraints while enabling progress.
 
 Remember: **Document First, Plan Carefully, Integrate Safely**

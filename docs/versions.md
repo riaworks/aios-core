@@ -2,9 +2,9 @@
 
 ## Previous Versions
 
-- [Version 3](https://github.com/bmadcode/BMAD-METHOD/tree/V3)
-- [Version 2](https://github.com/bmadcode/BMAD-METHOD/tree/V2)
-- [Version 1](https://github.com/bmadcode/BMAD-METHOD/tree/V1)
+- [Version 3](https://github.com/bmadcode/BMad-Method/tree/V3)
+- [Version 2](https://github.com/bmadcode/BMad-Method/tree/V2)
+- [Version 1](https://github.com/bmadcode/BMad-Method/tree/V1)
 
 ## Current Version: V4 - Alpha
 
@@ -25,7 +25,7 @@ V3 didn't fix the disconnect, but it did make it easier to maintain them all in 
 
 V3's biggest impact was a full explosion of customizability. Tasks, Personas, Agent Configurations, Doc Templates, data payloads.
 
-BUT - the BIGGEST change was the realization that we were barely scratching the surface of what could be loaded into Gemini Gems and still have very long chats. The BMAD AGENT arose, and with a single V3 release - the future of the BMad Method was changed forever.
+BUT - the BIGGEST change was the realization that we were barely scratching the surface of what could be loaded into Gemini Gems and still have very long chats. The BMad AGENT arose, and with a single V3 release - the future of the BMad Method was changed forever.
 
 Now, instead of configuring 4+ web agents, all needing many files uploaded to create them, a single Agent called BMad, with a whole team, and the ability to switch and maintain personas evolved. Now you could in the same chat thread, talk to the whole team, or anyone on the team. No more exporting and reimporting docs to different chats - all of the sudden, you could finish the PRD, and ask Josh to pass it off to the Architect, and that was it, the architect just had it and we moved on! And all of that with just 7 total files to upload, delivering all power.
 

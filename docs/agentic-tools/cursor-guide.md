@@ -1,6 +1,6 @@
-# BMAD Method Guide for Cursor
+# BMad Method Guide for Cursor
 
-This guide covers Cursor-specific setup and usage with BMAD Method. For the complete workflow, see the [BMAD Workflow Guide](../bmad-workflow-guide.md).
+This guide covers Cursor-specific setup and usage with BMad Method. For the complete workflow, see the [BMad Workflow Guide](../bmad-workflow-guide.md).
 
 ## Installation
 
@@ -9,7 +9,7 @@ When running `npx bmad-method install`, select **Cursor** as your IDE. This crea
 - `.bmad-core/` folder with all agents
 - `.cursor/rules/` folder with agent rule files (`.mdc`)
 
-## Using BMAD Agents in Cursor
+## Using BMad Agents in Cursor
 
 Type `@agent-name` in chat (Ctrl+L / Cmd+L) to activate an agent:
 
