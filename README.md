@@ -1,234 +1,303 @@
-# AIOS-FULLSTACK: Universal AI Agent Framework 🚀
+# AIOS-FULLSTACK: Framework Universal de Agentes IA 🚀
 
-[![NPM Version](https://img.shields.io/npm/v/aios-fullstack.svg)](https://www.npmjs.com/package/aios-fullstack)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)](https://nodejs.org/)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289da?logo=discord&logoColor=white)](https://discord.gg/gk8jAdXWmj)
-[![Documentation](https://img.shields.io/badge/docs-available-orange.svg)](https://aios-fullstack.dev)
+[![Versão NPM](https://img.shields.io/npm/v/aios-fullstack.svg)](https://www.npmjs.com/package/aios-fullstack)
+[![Licença: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Versão Node.js](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)](https://nodejs.org/)
+[![Documentação](https://img.shields.io/badge/docs-disponível-orange.svg)](https://aios-fullstack.dev)
 
-AI-Powered Self-Modifying Development Framework. Foundations in Agentic Agile Driven Development, delivering breakthrough capabilities for AI-driven development and beyond. Transform any domain with specialized AI expertise: software development, entertainment, creative writing, business strategy to personal wellness just to name a few.
+Framework de Desenvolvimento Auto-Modificável Alimentado por IA. Fundado em Desenvolvimento Ágil Dirigido por Agentes, oferecendo capacidades revolucionárias para desenvolvimento dirigido por IA e muito mais. Transforme qualquer domínio com expertise especializada de IA: desenvolvimento de software, entretenimento, escrita criativa, estratégia de negócios, bem-estar pessoal e muito mais.
 
-**[Subscribe to AIOS Team on YouTube](https://www.youtube.com/@AIOSFullstack?sub_confirmation=1)**
+## Visão Geral
 
-**[Join our Discord Community](https://discord.gg/gk8jAdXWmj)** - A growing community for AI enthusiasts! Get help, share ideas, explore AI agents & frameworks, collaborate on tech projects, enjoy hobbies, and help each other succeed. Whether you're stuck on AIOS, building your own agents, or just want to chat about the latest in AI - we're here for you! **Some mobile and VPN may have issue joining the discord, this is a discord issue - if the invite does not work, try from your own internet or another network, or non-VPN.**
+**As Duas Inovações Chave do AIOS-FULLSTACK:**
 
-⭐ **If you find this project helpful or useful, please give it a star in the upper right hand corner!** It helps others discover AIOS-FULLSTACK and you will be notified of updates!
+**1. Planejamento Agêntico:** Agentes dedicados (analyst, pm, architect) colaboram com você para criar documentos de PRD e Arquitetura detalhados e consistentes. Através de engenharia avançada de prompts e refinamento com human-in-the-loop, estes agentes de planejamento produzem especificações abrangentes que vão muito além da geração genérica de tarefas de IA.
 
-## Overview
+**2. Desenvolvimento Contextualizado por Engenharia:** O agente sm (Scrum Master) então transforma estes planos detalhados em histórias de desenvolvimento hiperdetalhadas que contêm tudo que o agente dev precisa - contexto completo, detalhes de implementação e orientação arquitetural incorporada diretamente nos arquivos de histórias.
 
-**AIOS-FULLSTACK's Two Key Innovations:**
+Esta abordagem de duas fases elimina tanto a **inconsistência de planejamento** quanto a **perda de contexto** - os maiores problemas no desenvolvimento assistido por IA. Seu agente dev abre um arquivo de história com compreensão completa do que construir, como construir e por quê.
 
-**1. Agentic Planning:** Dedicated agents (Analyst, PM, Architect) collaborate with you to create detailed, consistent PRDs and Architecture documents. Through advanced prompt engineering and human-in-the-loop refinement, these planning agents produce comprehensive specifications that go far beyond generic AI task generation.
+**📖 [Veja o fluxo de trabalho completo no Guia do Usuário](aios-core/user-guide.md)** - Fase de planejamento, ciclo de desenvolvimento e todos os papéis dos agentes
 
-**2. Context-Engineered Development:** The Scrum Master agent then transforms these detailed plans into hyper-detailed development stories that contain everything the Dev agent needs - full context, implementation details, and architectural guidance embedded directly in story files.
-
-This two-phase approach eliminates both **planning inconsistency** and **context loss** - the biggest problems in AI-assisted development. Your Dev agent opens a story file with complete understanding of what to build, how to build it, and why.
-
-**📖 [See the complete workflow in the User Guide](aios-core/user-guide.md)** - Planning phase, development cycle, and all agent roles
-
-## Prerequisites
+## Pré-requisitos
 
 - Node.js >=20.0.0
 - npm
-- GitHub CLI (required for team collaboration)
+- GitHub CLI (necessário para colaboração em equipe)
 
-**Platform-specific guides:**
-- 📖 [macOS Installation Guide](docs/installation/macos.md)
-- 📖 Windows Installation Guide (built-in support)
-- 📖 Linux Installation Guide (built-in support)
+**Guias específicos por plataforma:**
+- 📖 [Guia de Instalação para macOS](docs/installation/macos.md)
+- 📖 Guia de Instalação para Windows (suporte integrado)
+- 📖 Guia de Instalação para Linux (suporte integrado)
 
-## Quick Navigation
+## Navegação Rápida
 
-### Understanding the AIOS Workflow
+### Entendendo o Fluxo de Trabalho AIOS
 
-**Before diving in, review these critical workflow diagrams that explain how AIOS works:**
+**Antes de mergulhar, revise estes diagramas críticos de fluxo de trabalho que explicam como o AIOS funciona:**
 
-1. **[Planning Workflow (Web UI)](aios-core/user-guide.md#the-planning-workflow-web-ui)** - How to create PRD and Architecture documents
-2. **[Core Development Cycle (IDE)](aios-core/user-guide.md#the-core-development-cycle-ide)** - How SM, Dev, and QA agents collaborate through story files
+1. **[Fluxo de Planejamento (Interface Web)](aios-core/user-guide.md#the-planning-workflow-web-ui)** - Como criar documentos de PRD e Arquitetura
+2. **[Ciclo Principal de Desenvolvimento (IDE)](aios-core/user-guide.md#the-core-development-cycle-ide)** - Como os agentes sm, dev e qa colaboram através de arquivos de histórias
 
-> ⚠️ **These diagrams explain 90% of AIOS-FULLSTACK Agentic Agile flow confusion** - Understanding the PRD+Architecture creation and the SM/Dev/QA workflow and how agents pass notes through story files is essential - and also explains why this is NOT taskmaster or just a simple task runner!
+> ⚠️ **Estes diagramas explicam 90% da confusão sobre o fluxo AIOS-FULLSTACK Agentic Agile** - Entender a criação de PRD+Arquitetura e o fluxo de trabalho sm/dev/qa e como os agentes passam notas através de arquivos de histórias é essencial - e também explica por que isto NÃO é taskmaster ou apenas um simples executor de tarefas!
 
-### What would you like to do?
+### O que você gostaria de fazer?
 
-- **[Install and Build software with Full Stack Agile AI Team](#quick-start)** → Quick Start Instruction
-- **[Learn how to use AIOS](aios-core/user-guide.md)** → Complete user guide and walkthrough
-- **[See available AI agents](#available-agents)** → Specialized roles for your team
-- **[Explore non-technical uses](#-beyond-software-development---expansion-packs)** → Creative writing, business, wellness, education
-- **[Create my own AI agents](#creating-your-own-expansion-pack)** → Build agents for your domain
-- **[Browse ready-made expansion packs](expansion-packs/)** → Game dev, DevOps, infrastructure and get inspired with ideas and examples
-- **[Understand the architecture](docs/core-architecture.md)** → Technical deep dive
-- **[Join the community](https://discord.gg/gk8jAdXWmj)** → Get help and share ideas
+- **[Instalar e Construir software com Equipe Ágil Full Stack de IA](#início-rápido)** → Instruções de Início Rápido
+- **[Aprender como usar o AIOS](aios-core/user-guide.md)** → Guia completo do usuário e passo a passo
+- **[Ver agentes IA disponíveis](#agentes-disponíveis)** → Papéis especializados para sua equipe
+- **[Explorar usos não técnicos](#-além-do-desenvolvimento-de-software---expansion-packs)** → Escrita criativa, negócios, bem-estar, educação
+- **[Criar meus próprios agentes IA](#criando-seu-próprio-expansion-pack)** → Construir agentes para seu domínio
+- **[Navegar expansion packs prontos](expansion-packs/)** → Game dev, DevOps, infraestrutura e inspire-se com ideias e exemplos
+- **[Entender a arquitetura](docs/core-architecture.md)** → Mergulho técnico profundo
+- **[Juntar-se à comunidade](https://discord.gg/gk8jAdXWmj)** → Obter ajuda e compartilhar ideias
 
-## Important: Keep Your AIOS Installation Updated
+## Importante: Mantenha Sua Instalação AIOS Atualizada
 
-**Stay up-to-date effortlessly!** To update your existing AIOS installation:
+**Mantenha-se atualizado sem esforço!** Para atualizar sua instalação AIOS existente:
 
 ```bash
 npx github:Pedrovaleriolopez/aios-fullstack install
 ```
 
-This will:
+Isto vai:
 
-- ✅ Automatically detect your existing installation
-- ✅ Update only the files that have changed
-- ✅ Create `.bak` backup files for any custom modifications
-- ✅ Preserve your project-specific configurations
+- ✅ Detectar automaticamente sua instalação existente
+- ✅ Atualizar apenas os arquivos que mudaram
+- ✅ Criar arquivos de backup `.bak` para quaisquer modificações customizadas
+- ✅ Preservar suas configurações específicas do projeto
 
-This makes it easy to benefit from the latest improvements, bug fixes, and new agents without losing your customizations!
+Isto facilita beneficiar-se das últimas melhorias, correções de bugs e novos agentes sem perder suas customizações!
 
-## Quick Start
+## Início Rápido
 
-### 🚀 NPX Installation (Recommended)
+### 🚀 Instalação via NPX (Recomendado)
 
-**Install AIOS-FULLSTACK with a single command:**
+**Instale o AIOS-FULLSTACK com um único comando:**
 
 ```bash
-# Create a new project
-npx aios-fullstack init my-project
+# Criar um novo projeto
+npx aios-fullstack init meu-projeto
 
-# Or install in existing project
-cd your-project
+# Ou instalar em projeto existente
+cd seu-projeto
 npx aios-fullstack install
 
-# Or use a specific version
-npx aios-fullstack@latest init my-project
+# Ou usar uma versão específica
+npx aios-fullstack@latest init meu-projeto
 ```
 
-This single command:
+Este único comando:
 
-- ✅ Downloads the latest version from NPM
-- ✅ Runs interactive installation wizard
-- ✅ Configures your IDE automatically (Windsurf, Cursor, or Claude Code)
-- ✅ Sets up all AIOS agents and workflows
-- ✅ Creates the necessary configuration files
-- ✅ Initializes the meta-agent system
-- ✅ Runs system health checks
+- ✅ Baixa a versão mais recente do NPM
+- ✅ Executa o assistente de instalação interativo
+- ✅ Configura seu IDE automaticamente (Windsurf, Cursor ou Claude Code)
+- ✅ Configura todos os agentes e fluxos de trabalho AIOS
+- ✅ Cria os arquivos de configuração necessários
+- ✅ Inicializa o sistema de meta-agentes
+- ✅ Executa verificações de saúde do sistema
 
-> **That's it!** No cloning, no manual setup - just one command and you're ready to go.
+> **É isso!** Sem clonar, sem configuração manual - apenas um comando e você está pronto para começar.
 
-**Prerequisites**: [Node.js](https://nodejs.org) v14+ required
+**Pré-requisitos**: [Node.js](https://nodejs.org) v14+ necessário
 
-### Updating an Existing Installation
+### Atualizando uma Instalação Existente
 
-If you already have AIOS installed:
+Se você já tem o AIOS instalado:
 
 ```bash
 npx github:Pedrovaleriolopez/aios-fullstack install
-# The installer will detect your existing installation and update it
+# O instalador detectará sua instalação existente e a atualizará
 ```
 
-### Configure Your IDE for AIOS Development
+### Configure Seu IDE para Desenvolvimento AIOS
 
-AIOS-FULLSTACK includes pre-configured IDE rules to enhance your development experience:
+O AIOS-FULLSTACK inclui regras pré-configuradas para IDE para melhorar sua experiência de desenvolvimento:
 
-#### For Windsurf or Cursor:
-1. Open your IDE settings
-2. Navigate to **Global Rules** (Windsurf) or **User Rules** (Cursor)
-3. Copy the content from `.windsurf/global-rules.md` or `.cursor/global-rules.md`
-4. Paste into the rules section and save
+#### Para Windsurf ou Cursor:
+1. Abra as configurações do seu IDE
+2. Navegue até **Global Rules** (Windsurf) ou **User Rules** (Cursor)
+3. Copie o conteúdo de `.windsurf/global-rules.md` ou `.cursor/global-rules.md`
+4. Cole na seção de regras e salve
 
-#### For Claude Code:
-- ✅ Already configured! The `.claude/CLAUDE.md` file is automatically loaded
+#### Para Claude Code:
+- ✅ Já configurado! O arquivo `.claude/CLAUDE.md` é carregado automaticamente
 
-These rules provide:
-- 🤖 Agent command recognition and integration
-- 📋 Story-driven development workflow
-- ✅ Automatic checkbox tracking
-- 🧪 Testing and validation patterns
-- 📝 AIOS-specific code standards
+Estas regras fornecem:
+- 🤖 Reconhecimento e integração de comandos de agentes
+- 📋 Fluxo de trabalho de desenvolvimento dirigido por histórias
+- ✅ Rastreamento automático de checkboxes
+- 🧪 Padrões de teste e validação
+- 📝 Padrões de código específicos do AIOS
 
-### Fastest Start: Web UI Full Stack Team at your disposal (2 minutes)
+### Início Mais Rápido: Equipe Full Stack via Interface Web à sua disposição (2 minutos)
 
-1. **Get the bundle**: Save or clone the [full stack team file](dist/teams/team-fullstack.txt) or choose another team
-2. **Create AI agent**: Create a new Gemini Gem or CustomGPT
-3. **Upload & configure**: Upload the file and set instructions: "Your critical operating instructions are attached, do not break character as directed"
-4. **Start Ideating and Planning**: Start chatting! Type `*help` to see available commands or pick an agent like `*analyst` to start right in on creating a brief.
-5. **CRITICAL**: Talk to AIOS Orchestrator in the web at ANY TIME (#aios-orchestrator command) and ask it questions about how this all works!
-6. **When to move to the IDE**: Once you have your PRD, Architecture, optional UX and Briefs - its time to switch over to the IDE to shard your docs, and start implementing the actual code! See the [User guide](aios-core/user-guide.md) for more details
+1. **Obtenha o pacote**: Salve ou clone o [arquivo da equipe full stack](dist/teams/team-fullstack.txt) ou escolha outra equipe
+2. **Crie agente IA**: Crie um novo Gemini Gem ou CustomGPT
+3. **Faça upload e configure**: Faça upload do arquivo e defina as instruções: "Suas instruções operacionais críticas estão anexadas, não quebre o personagem conforme orientado"
+4. **Comece a Idealizar e Planejar**: Comece a conversar! Digite `*help` para ver comandos disponíveis ou escolha um agente como `*analyst` para começar a criar um briefing.
+5. **CRÍTICO**: Fale com o AIOS Orchestrator na web a QUALQUER MOMENTO (comando #aios-orchestrator) e faça perguntas sobre como tudo funciona!
+6. **Quando mudar para o IDE**: Uma vez que você tenha seu PRD, Arquitetura, UX opcional e Briefings - é hora de mudar para o IDE para fragmentar seus documentos e começar a implementar o código real! Veja o [Guia do usuário](aios-core/user-guide.md) para mais detalhes
 
-### NPX Commands Reference
+### Referência de Comandos NPX
 
 ```bash
-# Project Management
-npx aios-fullstack init <project-name> [options]
-  --force              Force creation in non-empty directory
-  --skip-install       Skip npm dependency installation
-  --template <name>    Use specific template (default, minimal, enterprise)
+# Gerenciamento de Projeto
+npx aios-fullstack init <nome-projeto> [opções]
+  --force              Forçar criação em diretório não vazio
+  --skip-install       Pular instalação de dependências npm
+  --template <nome>    Usar template específico (default, minimal, enterprise)
 
-# Installation & Setup
-npx aios-fullstack install [options]
-  --force              Overwrite existing configuration
-  --quiet              Minimal output during installation
+# Instalação e Configuração
+npx aios-fullstack install [opções]
+  --force              Sobrescrever configuração existente
+  --quiet              Saída mínima durante instalação
 
-# System Commands
-npx aios-fullstack info        Display system information
-npx aios-fullstack doctor      Run system diagnostics
-npx aios-fullstack doctor --fix Auto-fix detected issues
-npx aios-fullstack demo        Run interactive demo
+# Comandos do Sistema
+npx aios-fullstack info        Exibir informações do sistema
+npx aios-fullstack doctor      Executar diagnósticos do sistema
+npx aios-fullstack doctor --fix Corrigir problemas detectados automaticamente
+npx aios-fullstack demo        Executar demo interativa
 
-# Maintenance
-npx aios-fullstack update      Update to latest version
-npx aios-fullstack uninstall   Remove AIOS-FULLSTACK
+# Manutenção
+npx aios-fullstack update      Atualizar para versão mais recente
+npx aios-fullstack uninstall   Remover AIOS-FULLSTACK
 ```
 
-### Alternative: Clone and Build
+### Alternativa: Clonar e Construir
 
-For contributors or advanced users who want to modify the source:
+Para contribuidores ou usuários avançados que queiram modificar o código fonte:
 
 ```bash
-# Clone the repository
+# Clonar o repositório
 git clone https://github.com/Pedrovaleriolopez/aios-fullstack.git
 cd aios-fullstack
 
-# Install dependencies
+# Instalar dependências
 npm install
 
-# Run the installer
+# Executar o instalador
 npm run install:aios
 ```
 
-### Quick Team Setup
+### Configuração Rápida para Equipe
 
-For team members joining the project:
+Para membros da equipe ingressando no projeto:
 
 ```bash
-# Install AIOS with GitHub setup
+# Instalar AIOS com configuração GitHub
 npx github:Pedrovaleriolopez/aios-fullstack setup
 
-# This will:
-# 1. Check/install GitHub CLI
-# 2. Authenticate with GitHub
-# 3. Run the AIOS installer
+# Isto vai:
+# 1. Verificar/instalar GitHub CLI
+# 2. Autenticar com GitHub
+# 3. Executar o instalador AIOS
 ```
 
-## 🌟 Beyond Software Development - Expansion Packs
+## 🌟 Além do Desenvolvimento de Software - Expansion Packs
 
-AIOS's natural language framework works in ANY domain. Expansion packs provide specialized AI agents for creative writing, business strategy, health & wellness, education, and more. Also expansion packs can expand the core AIOS-FULLSTACK with specific functionality that is not generic for all cases. [See the Expansion Packs Guide](docs/expansion-packs.md) and learn to create your own!
+O framework de linguagem natural do AIOS funciona em QUALQUER domínio. Os expansion packs fornecem agentes IA especializados para escrita criativa, estratégia de negócios, saúde e bem-estar, educação e muito mais. Além disso, os expansion packs podem expandir o núcleo do AIOS-FULLSTACK com funcionalidade específica que não é genérica para todos os casos. [Veja o Guia de Expansion Packs](docs/expansion-packs.md) e aprenda a criar os seus próprios!
 
-## Documentation & Resources
+## Agentes Disponíveis
 
-### Essential Guides
+O AIOS-FULLSTACK vem com 11 agentes especializados:
 
-- 📖 **[User Guide](aios-core/user-guide.md)** - Complete walkthrough from project inception to completion
-- 🏗️ **[Core Architecture](docs/architecture.md)** - Technical deep dive and system design
-- 🚀 **[Expansion Packs Guide](docs/expansion-packs.md)** - Extend AIOS to any domain beyond software development
+### Agentes Meta
+- **aios-master** - Agente mestre de orquestração
+- **aios-orchestrator** - Orquestrador de fluxo de trabalho e coordenação de equipe
+- **aios-developer** - Meta-agente para criar e modificar componentes do framework
 
-## Support
+### Agentes de Planejamento (Interface Web)
+- **analyst** - Especialista em análise de negócios e criação de PRD
+- **pm** (Product Manager) - Gerente de produto e priorização
+- **architect** - Arquiteto de sistema e design técnico
+- **ux-expert** - Design de experiência do usuário e usabilidade
 
-- 💬 [Discord Community](https://discord.gg/gk8jAdXWmj)
-- 🐛 [Issue Tracker](https://github.com/allfluenceinc/aios-fullstack/issues)
-- 💬 [Discussions](https://github.com/allfluenceinc/aios-fullstack/discussions)
+### Agentes de Desenvolvimento (IDE)
+- **sm** (Scrum Master) - Gerenciamento de sprint e criação de histórias
+- **dev** - Desenvolvedor e implementação
+- **qa** - Garantia de qualidade e testes
+- **po** (Product Owner) - Gerenciamento de backlog e histórias
 
-## Contributing
+## Documentação e Recursos
 
-**We're excited about contributions and welcome your ideas, improvements, and expansion packs!** 🎉
+### Guias Essenciais
 
-📋 **[Read CONTRIBUTING.md](CONTRIBUTING.md)** - Complete guide to contributing, including guidelines, process, and requirements
+- 📖 **[Guia do Usuário](aios-core/user-guide.md)** - Passo a passo completo desde a concepção até a conclusão do projeto
+- 🏗️ **[Arquitetura Principal](docs/architecture.md)** - Mergulho técnico profundo e design do sistema
+- 🚀 **[Guia de Expansion Packs](docs/expansion-packs.md)** - Estenda o AIOS para qualquer domínio além do desenvolvimento de software
 
-## License
+### Documentação Adicional
 
-MIT License - see [LICENSE](LICENSE) for details.
+- 📋 **[Primeiros Passos](docs/getting-started.md)** - Tutorial passo a passo para iniciantes
+- 🔧 **[Solução de Problemas](docs/troubleshooting.md)** - Soluções para problemas comuns
+- 🎯 **[Princípios Orientadores](docs/GUIDING-PRINCIPLES.md)** - Filosofia e melhores práticas do AIOS
+- 🏛️ **[Visão Geral da Arquitetura](docs/architecture-overview.md)** - Visão detalhada da arquitetura do sistema
+- ⚙️ **[Guia de Ajuste de Performance](docs/performance-tuning-guide.md)** - Otimize seu fluxo de trabalho AIOS
+- 🔒 **[Melhores Práticas de Segurança](docs/security-best-practices.md)** - Segurança e proteção de dados
+- 🔄 **[Guia de Migração](docs/migration-guide.md)** - Migração de versões anteriores
+- 📦 **[Versionamento e Releases](docs/versioning-and-releases.md)** - Política de versões
+- 🌳 **[Trabalhando no Brownfield](aios-core/working-in-the-brownfield.md)** - Integrar AIOS em projetos existentes
 
-[![Contributors](https://contrib.rocks/image?repo=allfluenceinc/aios-fullstack)](https://github.com/allfluenceinc/aios-fullstack/graphs/contributors)
+## Criando Seu Próprio Expansion Pack
 
-<sub>Built with ❤️ for the AI-assisted development community</sub>
+Expansion packs permitem estender o AIOS para qualquer domínio. Estrutura básica:
+
+```
+expansion-packs/seu-pack/
+├── config.yaml           # Configuração do pack
+├── agents/              # Agentes especializados
+├── tasks/               # Fluxos de trabalho de tarefas
+├── templates/           # Templates de documentos
+├── checklists/          # Checklists de validação
+├── data/                # Base de conhecimento
+├── README.md            # Documentação do pack
+└── user-guide.md        # Guia do usuário
+```
+
+Veja o [Guia de Expansion Packs](docs/expansion-packs.md) para instruções detalhadas.
+
+## Expansion Packs Disponíveis
+
+- **aios-infrastructure-devops** - Infraestrutura e DevOps
+- **expansion-creator** - Criador de expansion packs
+- **hybrid-ops** - Operações híbridas humano-agente
+- **meeting-notes** - Notas e atas de reuniões
+
+Explore o diretório [expansion-packs/](expansion-packs/) para mais inspiração!
+
+## Suporte
+
+- 💬 [Comunidade Discord](https://discord.gg/gk8jAdXWmj)
+- 🐛 [Rastreador de Issues](https://github.com/Pedrovaleriolopez/aios-fullstack/issues)
+- 💬 [Discussões](https://github.com/Pedrovaleriolopez/aios-fullstack/discussions)
+
+## Contribuindo
+
+**Estamos empolgados com contribuições e acolhemos suas ideias, melhorias e expansion packs!** 🎉
+
+Para contribuir:
+
+1. Fork o repositório
+2. Crie uma branch para sua feature (`git checkout -b feature/MinhaNovaFeature`)
+3. Commit suas mudanças (`git commit -m 'feat: Adicionar nova feature'`)
+4. Push para a branch (`git push origin feature/MinhaNovaFeature`)
+5. Abra um Pull Request
+
+Veja também:
+- 📋 [Como Contribuir com Pull Requests](docs/how-to-contribute-with-pull-requests.md)
+- 📋 [Checklist de Lançamento](docs/launch-checklist.md)
+
+## Licença
+
+Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+## Reconhecimentos
+
+[![Contributors](https://contrib.rocks/image?repo=Pedrovaleriolopez/aios-fullstack)](https://github.com/Pedrovaleriolopez/aios-fullstack/graphs/contributors)
+
+<sub>Construído com ❤️ para a comunidade de desenvolvimento assistido por IA</sub>
+
+---
+
+**[⬆ Voltar ao topo](#aios-fullstack-framework-universal-de-agentes-ia-)**
