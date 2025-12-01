@@ -167,14 +167,14 @@ dependencies:
     - correct-course.md
     - create-brownfield-story.md
     - execute-checklist.md
-    - manage-story-backlog.md
-    - pull-story.md
+    - po-manage-story-backlog.md
+    - po-pull-story.md
     - shard-doc.md
-    - sync-story.md
+    - po-sync-story.md
     - validate-next-story.md
     # Backward compatibility (deprecated but kept for migration)
-    - sync-story-to-clickup.md
-    - pull-story-from-clickup.md
+    - po-sync-story-to-clickup.md
+    - po-pull-story-from-clickup.md
   templates:
     - story-tmpl.yaml
   checklists:

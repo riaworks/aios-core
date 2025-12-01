@@ -165,7 +165,7 @@ dependencies:
     - create-doc.md
 
     # Architecture & Design tasks
-    - domain-modeling.md
+    - db-domain-modeling.md
     - setup-database.md          # Renamed from supabase-setup.md (Story 6.1.2.3) - database-agnostic
 
     # Operations & DBA tasks

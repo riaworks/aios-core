@@ -169,7 +169,7 @@ commands:
   - exit: Exit architect mode
 dependencies:
   tasks:
-    - analyze-impact.md
+    - architect-analyze-impact.md
     - collaborative-edit.md
     - create-deep-research-prompt.md
     - create-doc.md

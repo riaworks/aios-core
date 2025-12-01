@@ -161,11 +161,11 @@ commands:
 
 dependencies:
   tasks:
-    - version-management.md
-    - pre-push-quality-gate.md
-    - github-pr-automation.md
+    - github-devops-version-management.md
+    - github-devops-pre-push-quality-gate.md
+    - github-devops-github-pr-automation.md
     - ci-cd-configuration.md
-    - repository-cleanup.md
+    - github-devops-repository-cleanup.md
     - release-management.md
   templates:
     - github-pr-template.md

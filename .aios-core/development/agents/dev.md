@@ -152,12 +152,12 @@ dependencies:
     - story-dod-checklist.md
   tasks:
     - apply-qa-fixes.md
-    - develop-story.md
+    - dev-develop-story.md
     - execute-checklist.md
-    - improve-code-quality.md
-    - manage-story-backlog.md
-    - optimize-performance.md
-    - suggest-refactoring.md
+    - dev-improve-code-quality.md
+    - po-manage-story-backlog.md
+    - dev-optimize-performance.md
+    - dev-suggest-refactoring.md
     - sync-documentation.md
     - validate-next-story.md
   tools:
