@@ -518,22 +518,36 @@ class PostInstallValidator {
         continue;
       }
 
+      // SECURITY [H5-PRE]: Reject unknown fields BEFORE normalization
+      // This prevents malicious fields from being silently dropped
+      if (typeof entry === 'object' && entry !== null) {
+        for (const key of Object.keys(entry)) {
+          if (!ALLOWED_MANIFEST_FIELDS.includes(key)) {
+            throw new Error(`Entry ${i}: unknown field '${key}' in manifest`);
+          }
+        }
+      }
+
+      // SECURITY [H5-SIZE]: Fail fast on malformed sizes instead of silently nulling
+      // When size is present but invalid, reject the manifest entirely
+      if (entry.size !== undefined && entry.size !== null) {
+        const sizeNum = Number(entry.size);
+        if (Number.isNaN(sizeNum) || !Number.isInteger(sizeNum) || sizeNum < 0) {
+          throw new Error(
+            `Entry ${i}: invalid size '${entry.size}' for path '${entry.path}' (must be non-negative integer)`
+          );
+        }
+      }
+
       // Object format - convert FAILSAFE_SCHEMA strings to proper types
       const normalizedEntry = {
         path: entry.path,
         hash: entry.hash,
         // FAILSAFE_SCHEMA returns all values as strings, convert size to number
+        // Size already validated above, safe to convert
         size: entry.size !== undefined && entry.size !== null ? Number(entry.size) : null,
         type: entry.type,
       };
-
-      // Handle NaN or non-integer sizes as invalid
-      if (
-        normalizedEntry.size !== null &&
-        (Number.isNaN(normalizedEntry.size) || !Number.isInteger(normalizedEntry.size))
-      ) {
-        normalizedEntry.size = null;
-      }
 
       const validation = validateManifestEntry(normalizedEntry, i);
       if (!validation.valid) {
@@ -652,6 +666,68 @@ class PostInstallValidator {
         details: `Found ${lstat.isDirectory() ? 'directory' : 'special file'} instead of file`,
         category,
         remediation: 'Only regular files are allowed',
+        relativePath,
+      };
+      this.stats.skippedFiles++;
+      return result;
+    }
+
+    // SECURITY [C3-REALPATH]: Detect symlinks in intermediate directory components
+    // A file may not be a symlink itself, but a parent directory could be,
+    // allowing path traversal attacks (e.g., /install/.aios-core/symlinked-dir/../../../etc/passwd)
+    try {
+      const realPath = fs.realpathSync(absolutePath);
+      // Compare normalized paths - if they differ, there's a symlink in the path
+      const normalizedAbsolute = path.resolve(absolutePath);
+      const normalizedReal = path.resolve(realPath);
+
+      // Platform-aware comparison (case-insensitive on Windows)
+      const comparableAbsolute =
+        process.platform === 'win32' ? normalizedAbsolute.toLowerCase() : normalizedAbsolute;
+      const comparableReal =
+        process.platform === 'win32' ? normalizedReal.toLowerCase() : normalizedReal;
+
+      if (comparableAbsolute !== comparableReal) {
+        this.log(`SECURITY: Symlinked path component detected: ${relativePath}`);
+        result.issue = {
+          type: IssueType.SYMLINK_REJECTED,
+          severity: Severity.CRITICAL,
+          message: `Symlinked path component detected: ${relativePath}`,
+          details: `Resolved path differs from expected: ${realPath} vs ${absolutePath}`,
+          category,
+          remediation: 'Remove symlinks from directory structure',
+          relativePath,
+        };
+        this.stats.skippedFiles++;
+        return result;
+      }
+
+      // Also verify realpath is still contained within target directory
+      if (!isPathContained(realPath, this.aiosCoreTarget)) {
+        this.log(`SECURITY: Realpath escapes target directory: ${relativePath}`);
+        result.issue = {
+          type: IssueType.INVALID_PATH,
+          severity: Severity.CRITICAL,
+          message: `Path escape via symlink detected: ${relativePath}`,
+          details: `Real path ${realPath} is outside installation directory`,
+          category,
+          remediation: 'This indicates a path traversal attack via symlinked directories',
+          relativePath,
+        };
+        this.stats.skippedFiles++;
+        return result;
+      }
+    } catch (error) {
+      // realpathSync can fail if file doesn't exist or permission denied
+      // File existence already checked via lstat, so this indicates permission issue
+      this.log(`SECURITY: Cannot resolve realpath for: ${relativePath} - ${error.message}`);
+      result.issue = {
+        type: IssueType.PERMISSION_ERROR,
+        severity: Severity.HIGH,
+        message: `Cannot resolve real path: ${relativePath}`,
+        details: error.message,
+        category,
+        remediation: 'Check file and directory permissions',
         relativePath,
       };
       this.stats.skippedFiles++;
