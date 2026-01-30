@@ -36,14 +36,13 @@ const ExitCode = {
 
 // Resolve validator module path
 const validatorPath = path.resolve(__dirname, '../../../../src/installer/post-install-validator');
-let PostInstallValidator, formatReport, quickValidate;
+let PostInstallValidator, formatReport;
 
 let validatorLoadError = null;
 try {
   const validator = require(validatorPath);
   PostInstallValidator = validator.PostInstallValidator;
   formatReport = validator.formatReport;
-  quickValidate = validator.quickValidate;
 } catch (error) {
   // Store error for later - will be reported during command execution
   // This allows proper JSON output when --json flag is used

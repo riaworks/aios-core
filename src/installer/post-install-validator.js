@@ -1174,6 +1174,8 @@ class PostInstallValidator {
  */
 function formatReport(report, options = {}) {
   const useColors = options.colors !== false;
+  // Note: detailed option is parsed from CLI but detailed view is handled by caller
+  // eslint-disable-next-line no-unused-vars
   const detailed = options.detailed === true;
 
   const c = {

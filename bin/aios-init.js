@@ -810,10 +810,7 @@ See .aios-core/user-guide.md for complete documentation.
 
   let validationPassed = true;
   try {
-    const {
-      PostInstallValidator,
-      formatReport,
-    } = require('../src/installer/post-install-validator');
+    const { PostInstallValidator } = require('../src/installer/post-install-validator');
     const validator = new PostInstallValidator(context.projectRoot, context.frameworkLocation, {
       verifyHashes: false,
       verbose: false,
