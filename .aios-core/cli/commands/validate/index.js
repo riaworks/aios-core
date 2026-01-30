@@ -277,6 +277,7 @@ async function runValidation(options) {
           ? {
               attempted: true,
               success: repairResult?.success ?? false,
+              error: repairResult?.error ?? null,
               dryRun: options.dryRun === true,
               repairedCount: repairResult?.repaired?.length ?? 0,
               failedCount: repairResult?.failed?.length ?? 0,
@@ -288,6 +289,12 @@ async function runValidation(options) {
       console.log(JSON.stringify(output, null, 2));
     } else {
       console.log(formatReport(report, { colors: true, detailed: options.detailed }));
+
+      // Surface repair refusal errors in human-readable output
+      if (repairAttempted && !repairResult?.success && repairResult?.error) {
+        console.log('');
+        console.log(chalk.red(`Repair failed: ${repairResult.error}`));
+      }
     }
 
     // Exit with appropriate code
