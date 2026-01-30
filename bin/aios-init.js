@@ -814,15 +814,21 @@ See .aios-core/user-guide.md for complete documentation.
       PostInstallValidator,
       formatReport,
     } = require('../src/installer/post-install-validator');
-    const validator = new PostInstallValidator(
-      context.projectRoot,
-      context.frameworkLocation,
-      { verifyHashes: false, verbose: false } // Quick validation without hash check
-    );
+    const validator = new PostInstallValidator(context.projectRoot, context.frameworkLocation, {
+      verifyHashes: false,
+      verbose: false,
+      // Disable signature requirement during installation (manifest not yet signed)
+      // Production validation should use requireSignature: true
+      requireSignature: false,
+    });
 
     const report = await validator.validate();
 
-    if (report.status === 'failed' || report.stats.missingFiles > 0) {
+    if (
+      report.status === 'failed' ||
+      report.stats.missingFiles > 0 ||
+      report.stats.corruptedFiles > 0
+    ) {
       validationPassed = false;
       console.log(chalk.yellow('⚠') + ` Installation validation found issues:`);
       console.log(chalk.dim(`   - Missing files: ${report.stats.missingFiles}`));

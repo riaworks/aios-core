@@ -1,23 +1,25 @@
 /**
  * Post-Installation Validator
- * Validates installation integrity by comparing installed files against manifest
+ * Validates installation integrity by comparing installed files against SIGNED manifest
  *
  * @module src/installer/post-install-validator
  * @story 6.19 - Post-Installation Validation & Integrity Verification
- * @version 1.0.0
+ * @version 2.0.0 - Security hardened
+ *
+ * SECURITY MODEL:
+ * - Manifest MUST be cryptographically signed before any file access
+ * - All paths are validated for containment before filesystem operations
+ * - Symlinks are explicitly rejected
+ * - Repair operations require source file hash verification
+ * - Fail closed on any security violation
  *
  * Features:
- * - Validates all installed files against install-manifest.yaml
+ * - Validates all installed files against signed install-manifest.yaml
  * - Verifies SHA256 hashes for integrity checking
  * - Detects missing, corrupted, and extra files
  * - Provides detailed reports with actionable remediation
- * - Supports automatic repair of missing files
+ * - Supports automatic repair of missing files (with verification)
  * - Cross-platform compatible (Windows, macOS, Linux)
- *
- * Usage:
- *   const { PostInstallValidator } = require('./post-install-validator');
- *   const validator = new PostInstallValidator(targetDir, sourceDir);
- *   const report = await validator.validate();
  */
 
 'use strict';
@@ -26,6 +28,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const yaml = require('js-yaml');
 const { hashFile, hashesMatch } = require('./file-hasher');
+const { loadAndVerifyManifest, signatureExists } = require('./manifest-signature');
 
 /**
  * Validation result severity levels
@@ -51,6 +54,12 @@ const IssueType = {
   INVALID_MANIFEST: 'INVALID_MANIFEST',
   PERMISSION_ERROR: 'PERMISSION_ERROR',
   SIZE_MISMATCH: 'SIZE_MISMATCH',
+  INVALID_PATH: 'INVALID_PATH',
+  SYMLINK_REJECTED: 'SYMLINK_REJECTED',
+  SIGNATURE_MISSING: 'SIGNATURE_MISSING',
+  SIGNATURE_INVALID: 'SIGNATURE_INVALID',
+  HASH_ERROR: 'HASH_ERROR',
+  SCHEMA_VIOLATION: 'SCHEMA_VIOLATION',
 };
 
 /**
@@ -68,6 +77,22 @@ const FileCategory = {
   MONITOR: 'monitor',
   OTHER: 'other',
 };
+
+/**
+ * Security limits to prevent DoS attacks
+ */
+const SecurityLimits = {
+  MAX_MANIFEST_SIZE: 10 * 1024 * 1024, // 10MB
+  MAX_FILE_COUNT: 50000,
+  MAX_SCAN_DEPTH: 50,
+  MAX_SCAN_FILES: 100000,
+  MAX_PATH_LENGTH: 1024,
+};
+
+/**
+ * Allowed fields in manifest entries (reject unknown fields)
+ */
+const ALLOWED_MANIFEST_FIELDS = ['path', 'hash', 'size', 'type'];
 
 /**
  * Categorize a file path into its functional category
@@ -111,19 +136,148 @@ function getSeverityForCategory(category) {
 }
 
 /**
+ * Validate that a resolved path is contained within the root directory
+ * Prevents path traversal attacks via malicious manifest entries
+ *
+ * SECURITY: Handles Windows case-insensitivity and alternate data streams
+ *
+ * @param {string} absolutePath - The resolved absolute path to check
+ * @param {string} rootDir - The root directory that should contain the path
+ * @returns {boolean} - True if path is safely contained within root
+ */
+function isPathContained(absolutePath, rootDir) {
+  const normalizedRoot = path.resolve(rootDir);
+  const normalizedPath = path.resolve(absolutePath);
+
+  // SECURITY: Case-insensitive comparison on Windows
+  const comparableRoot =
+    process.platform === 'win32' ? normalizedRoot.toLowerCase() : normalizedRoot;
+  const comparablePath =
+    process.platform === 'win32' ? normalizedPath.toLowerCase() : normalizedPath;
+
+  // SECURITY: Reject alternate data streams (Windows)
+  // Valid drive letter format is "X:\" only at the start
+  if (absolutePath.includes(':') && !absolutePath.match(/^[a-zA-Z]:[/\\]/)) {
+    return false;
+  }
+
+  // Path must be equal to root or start with root + separator
+  return comparablePath === comparableRoot || comparablePath.startsWith(comparableRoot + path.sep);
+}
+
+/**
+ * Validate a manifest entry against strict schema
+ * SECURITY: Rejects unknown fields and invalid types
+ *
+ * @param {*} entry - Manifest entry to validate
+ * @param {number} index - Entry index for error reporting
+ * @returns {{ valid: boolean, error: string|null, sanitized: Object|null }}
+ */
+function validateManifestEntry(entry, index) {
+  // Must be a plain object
+  if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
+    return { valid: false, error: `Entry ${index}: not an object`, sanitized: null };
+  }
+
+  // SECURITY: Reject unknown fields
+  for (const key of Object.keys(entry)) {
+    if (!ALLOWED_MANIFEST_FIELDS.includes(key)) {
+      return { valid: false, error: `Entry ${index}: unknown field '${key}'`, sanitized: null };
+    }
+  }
+
+  // path: required, string, non-empty
+  if (typeof entry.path !== 'string' || entry.path.length === 0) {
+    return { valid: false, error: `Entry ${index}: missing or invalid 'path'`, sanitized: null };
+  }
+
+  // SECURITY: Path validation
+  const pathVal = entry.path;
+
+  // Reject null bytes
+  if (pathVal.includes('\0')) {
+    return { valid: false, error: `Entry ${index}: path contains null byte`, sanitized: null };
+  }
+
+  // Reject path traversal sequences
+  if (pathVal.includes('..')) {
+    return {
+      valid: false,
+      error: `Entry ${index}: path contains '..' traversal`,
+      sanitized: null,
+    };
+  }
+
+  // Reject absolute paths
+  if (path.isAbsolute(pathVal)) {
+    return { valid: false, error: `Entry ${index}: absolute path not allowed`, sanitized: null };
+  }
+
+  // Reject excessively long paths
+  if (pathVal.length > SecurityLimits.MAX_PATH_LENGTH) {
+    return { valid: false, error: `Entry ${index}: path exceeds maximum length`, sanitized: null };
+  }
+
+  // hash: optional, but if present must be valid format
+  if (entry.hash !== undefined && entry.hash !== null) {
+    if (typeof entry.hash !== 'string') {
+      return { valid: false, error: `Entry ${index}: hash must be a string`, sanitized: null };
+    }
+    if (!entry.hash.match(/^sha256:[a-f0-9]{64}$/i)) {
+      return { valid: false, error: `Entry ${index}: invalid hash format`, sanitized: null };
+    }
+  }
+
+  // size: optional, but if present must be non-negative integer
+  if (entry.size !== undefined && entry.size !== null) {
+    if (typeof entry.size !== 'number' || !Number.isInteger(entry.size) || entry.size < 0) {
+      return {
+        valid: false,
+        error: `Entry ${index}: size must be non-negative integer`,
+        sanitized: null,
+      };
+    }
+  }
+
+  // type: optional, if present must be 'file'
+  if (entry.type !== undefined && entry.type !== null) {
+    if (entry.type !== 'file') {
+      return {
+        valid: false,
+        error: `Entry ${index}: only type 'file' is allowed`,
+        sanitized: null,
+      };
+    }
+  }
+
+  // Return sanitized entry with normalized path
+  return {
+    valid: true,
+    error: null,
+    sanitized: {
+      path: pathVal.replace(/\\/g, '/'),
+      hash: entry.hash ? String(entry.hash).toLowerCase() : null,
+      size: typeof entry.size === 'number' ? entry.size : null,
+      type: entry.type || 'file',
+    },
+  };
+}
+
+/**
  * Post-Installation Validator Class
- * Comprehensive validation of AIOS-Core installation
+ * Comprehensive validation of AIOS-Core installation with security hardening
  */
 class PostInstallValidator {
   /**
    * Create a new PostInstallValidator instance
    *
    * @param {string} targetDir - Directory where AIOS was installed (project root)
-   * @param {string} [sourceDir] - Source directory for repairs (optional, for npx installs)
+   * @param {string} [sourceDir] - Source directory for repairs (optional)
    * @param {Object} [options] - Validation options
    * @param {boolean} [options.verifyHashes=true] - Whether to verify file hashes
-   * @param {boolean} [options.detectExtras=false] - Whether to detect extra files not in manifest
+   * @param {boolean} [options.detectExtras=false] - Whether to detect extra files
    * @param {boolean} [options.verbose=false] - Enable verbose logging
+   * @param {boolean} [options.requireSignature=true] - Require manifest signature
    * @param {Function} [options.onProgress] - Progress callback (current, total, file)
    */
   constructor(targetDir, sourceDir = null, options = {}) {
@@ -136,10 +290,12 @@ class PostInstallValidator {
       verifyHashes: options.verifyHashes !== false,
       detectExtras: options.detectExtras === true,
       verbose: options.verbose === true,
+      requireSignature: options.requireSignature !== false,
       onProgress: options.onProgress || (() => {}),
     };
 
     this.manifest = null;
+    this.manifestVerified = false;
     this.issues = [];
     this.stats = {
       totalFiles: 0,
@@ -152,26 +308,23 @@ class PostInstallValidator {
   }
 
   /**
-   * Load and parse the install manifest
-   * Prefers source manifest (with hashes) over installed manifest (simple list)
+   * Load, verify signature, and parse the install manifest
+   * SECURITY: Signature is verified BEFORE parsing YAML
    *
-   * @returns {Promise<Object|null>} - Parsed manifest or null if not found
-   * @throws {Error} - If manifest is invalid
+   * @returns {Promise<Object|null>} - Parsed manifest or null if verification fails
    */
   async loadManifest() {
-    // Prefer source manifest (has hashes for integrity checking)
+    // Determine manifest path
     const sourceManifestPath = this.aiosCoreSource
       ? path.join(this.aiosCoreSource, 'install-manifest.yaml')
       : null;
     const targetManifestPath = path.join(this.aiosCoreTarget, 'install-manifest.yaml');
 
     let manifestPath = targetManifestPath;
-    let usingSourceManifest = false;
 
-    // Use source manifest if available (has hashes)
+    // Prefer source manifest (has hashes)
     if (sourceManifestPath && fs.existsSync(sourceManifestPath)) {
       manifestPath = sourceManifestPath;
-      usingSourceManifest = true;
       this.log(`Using source manifest: ${sourceManifestPath}`);
     } else if (!fs.existsSync(targetManifestPath)) {
       this.issues.push({
@@ -180,78 +333,150 @@ class PostInstallValidator {
         message: 'Install manifest not found',
         details: `Expected at: ${targetManifestPath}`,
         remediation: 'Re-run installation or copy manifest from source package',
+        relativePath: null,
       });
       return null;
     }
 
+    // SECURITY [C1]: Verify signature BEFORE parsing
+    if (this.options.requireSignature) {
+      const verifyResult = loadAndVerifyManifest(manifestPath, {
+        requireSignature: true,
+      });
+
+      if (verifyResult.error) {
+        const issueType = verifyResult.error.includes('not found')
+          ? IssueType.SIGNATURE_MISSING
+          : IssueType.SIGNATURE_INVALID;
+
+        this.issues.push({
+          type: issueType,
+          severity: Severity.CRITICAL,
+          message: `Manifest signature verification failed: ${verifyResult.error}`,
+          details: 'The manifest cannot be trusted without a valid signature',
+          remediation: 'Obtain a properly signed manifest from the official source',
+          relativePath: null,
+        });
+        return null; // HARD FAIL
+      }
+
+      this.manifestVerified = verifyResult.verified;
+
+      // Parse verified content
+      try {
+        return this.parseManifestContent(verifyResult.content.toString('utf8'));
+      } catch (error) {
+        this.issues.push({
+          type: IssueType.INVALID_MANIFEST,
+          severity: Severity.CRITICAL,
+          message: 'Failed to parse verified manifest',
+          details: error.message,
+          remediation: 'Re-download manifest from trusted source',
+          relativePath: null,
+        });
+        return null;
+      }
+    }
+
+    // Development mode: signature not required (NOT for production)
+    this.log('WARNING: Signature verification disabled - development mode only');
     try {
       const content = fs.readFileSync(manifestPath, 'utf8');
-      this.manifest = yaml.load(content);
-
-      if (!this.manifest || !Array.isArray(this.manifest.files)) {
-        throw new Error('Manifest missing required "files" array');
-      }
-
-      // Check manifest format: source has objects {path, hash, size}, installed may have strings
-      const firstEntry = this.manifest.files[0];
-      if (typeof firstEntry === 'string') {
-        // Convert simple string list to object format
-        this.log('Converting simple manifest format to object format');
-        this.manifest.files = this.manifest.files.map((filePath) => ({
-          path: filePath.replace(/\\/g, '/'),
-          hash: null,
-          size: null,
-        }));
-      }
-
-      this.log(
-        `Loaded manifest v${this.manifest.version} with ${this.manifest.files.length} files` +
-          (usingSourceManifest ? ' (from source)' : '')
-      );
-      return this.manifest;
+      return this.parseManifestContent(content);
     } catch (error) {
       this.issues.push({
         type: IssueType.INVALID_MANIFEST,
         severity: Severity.CRITICAL,
-        message: 'Install manifest is invalid or corrupted',
+        message: 'Failed to read manifest',
         details: error.message,
-        remediation: 'Re-run installation to regenerate manifest',
+        remediation: 'Re-run installation',
+        relativePath: null,
       });
       return null;
     }
   }
 
   /**
-   * Validate a single file against manifest entry
+   * Parse manifest content with strict validation
+   * SECURITY [C2]: Uses FAILSAFE_SCHEMA to prevent code execution
+   * SECURITY [H5]: Validates schema strictly
    *
-   * @param {Object} entry - Manifest file entry
-   * @param {string} entry.path - Relative file path
-   * @param {string} entry.hash - Expected SHA256 hash (prefixed with "sha256:")
-   * @param {number} entry.size - Expected file size in bytes
-   * @returns {Promise<Object>} - Validation result for this file
+   * @param {string} content - Raw manifest content
+   * @returns {Object} Parsed and validated manifest
    */
-  async validateFile(entry) {
-    // Guard against invalid manifest entries
-    if (!entry || typeof entry.path !== 'string') {
-      this.log(`Skipping invalid manifest entry: ${JSON.stringify(entry)}`);
-      this.stats.skippedFiles++;
-      return {
-        path: 'unknown',
-        category: FileCategory.OTHER,
-        exists: false,
-        hashValid: null,
-        sizeValid: null,
-        issue: {
-          type: IssueType.INVALID_MANIFEST,
-          severity: Severity.LOW,
-          message: 'Invalid manifest entry (missing path)',
-          details: JSON.stringify(entry),
-        },
-      };
+  parseManifestContent(content) {
+    // SECURITY: Size limit
+    if (content.length > SecurityLimits.MAX_MANIFEST_SIZE) {
+      throw new Error(`Manifest exceeds maximum size (${SecurityLimits.MAX_MANIFEST_SIZE} bytes)`);
     }
 
+    // SECURITY [C2]: Use FAILSAFE_SCHEMA - no custom types, no code execution
+    const parsed = yaml.load(content, { schema: yaml.FAILSAFE_SCHEMA });
+
+    // Validate root structure
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error('Manifest must be a valid YAML object');
+    }
+
+    if (!Array.isArray(parsed.files)) {
+      throw new Error('Manifest missing required "files" array');
+    }
+
+    // SECURITY: File count limit
+    if (parsed.files.length > SecurityLimits.MAX_FILE_COUNT) {
+      throw new Error(
+        `Manifest contains too many files (${parsed.files.length} > ${SecurityLimits.MAX_FILE_COUNT})`
+      );
+    }
+
+    // SECURITY [H5]: Validate and sanitize each entry
+    const sanitizedFiles = [];
+    for (let i = 0; i < parsed.files.length; i++) {
+      const entry = parsed.files[i];
+
+      // Handle string format (simple manifest)
+      if (typeof entry === 'string') {
+        const validation = validateManifestEntry({ path: entry }, i);
+        if (!validation.valid) {
+          throw new Error(validation.error);
+        }
+        sanitizedFiles.push(validation.sanitized);
+        continue;
+      }
+
+      // Object format
+      const validation = validateManifestEntry(entry, i);
+      if (!validation.valid) {
+        throw new Error(validation.error);
+      }
+      sanitizedFiles.push(validation.sanitized);
+    }
+
+    this.manifest = {
+      ...parsed,
+      files: sanitizedFiles,
+    };
+
+    this.log(
+      `Loaded manifest v${this.manifest.version || 'unknown'} with ${this.manifest.files.length} files`
+    );
+
+    return this.manifest;
+  }
+
+  /**
+   * Validate a single file against manifest entry
+   * SECURITY [C3]: Rejects symlinks and non-regular files
+   * SECURITY [H1]: Validates path containment
+   * SECURITY [H2]: Requires size in quick mode
+   * SECURITY [H3]: Treats hash errors as failures
+   *
+   * @param {Object} entry - Validated manifest entry
+   * @returns {Promise<Object>} - Validation result
+   */
+  async validateFile(entry) {
     const relativePath = entry.path;
-    const absolutePath = path.join(this.aiosCoreTarget, relativePath);
+    const absolutePath = path.resolve(this.aiosCoreTarget, relativePath);
     const category = categorizeFile(relativePath);
 
     const result = {
@@ -263,70 +488,166 @@ class PostInstallValidator {
       issue: null,
     };
 
-    // Check file existence
-    if (!fs.existsSync(absolutePath)) {
+    // SECURITY [H1]: Validate path containment
+    if (!isPathContained(absolutePath, this.aiosCoreTarget)) {
+      this.log(`SECURITY: Path traversal blocked: ${relativePath}`);
       result.issue = {
-        type: IssueType.MISSING_FILE,
-        severity: getSeverityForCategory(category),
-        message: `Missing file: ${relativePath}`,
-        details: `Expected at: ${absolutePath}`,
+        type: IssueType.INVALID_PATH,
+        severity: Severity.CRITICAL,
+        message: 'Path traversal attempt blocked',
+        details: 'Manifest entry attempts to access outside installation directory',
         category,
-        remediation: this.sourceDir
-          ? `Copy from source: ${path.join(this.aiosCoreSource, relativePath)}`
-          : 'Re-run installation to restore missing files',
-      };
-      this.stats.missingFiles++;
-      return result;
-    }
-
-    result.exists = true;
-
-    // Verify file size (quick check)
-    try {
-      const stats = fs.statSync(absolutePath);
-      result.sizeValid = stats.size === entry.size;
-
-      if (!result.sizeValid && this.options.verbose) {
-        this.log(`Size mismatch: ${relativePath} (expected ${entry.size}, got ${stats.size})`);
-      }
-    } catch (error) {
-      result.issue = {
-        type: IssueType.PERMISSION_ERROR,
-        severity: Severity.HIGH,
-        message: `Cannot read file: ${relativePath}`,
-        details: error.message,
-        category,
-        remediation: 'Check file permissions and try again',
+        remediation: 'This indicates a malicious or corrupted manifest',
+        relativePath,
       };
       this.stats.skippedFiles++;
       return result;
     }
 
-    // Verify hash (thorough check)
+    // Check file existence
+    let lstat;
+    try {
+      lstat = fs.lstatSync(absolutePath);
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        result.issue = {
+          type: IssueType.MISSING_FILE,
+          severity: getSeverityForCategory(category),
+          message: `Missing file: ${relativePath}`,
+          details: `Expected at: ${absolutePath}`,
+          category,
+          remediation: this.sourceDir
+            ? "Run 'aios validate --repair' to restore"
+            : 'Re-run installation',
+          relativePath,
+        };
+        this.stats.missingFiles++;
+        return result;
+      }
+
+      result.issue = {
+        type: IssueType.PERMISSION_ERROR,
+        severity: Severity.HIGH,
+        message: `Cannot access file: ${relativePath}`,
+        details: error.message,
+        category,
+        remediation: 'Check file permissions',
+        relativePath,
+      };
+      this.stats.skippedFiles++;
+      return result;
+    }
+
+    // SECURITY [C3]: Reject symlinks
+    if (lstat.isSymbolicLink()) {
+      result.issue = {
+        type: IssueType.SYMLINK_REJECTED,
+        severity: Severity.CRITICAL,
+        message: `Symlink not allowed: ${relativePath}`,
+        details: 'Symlinks are rejected to prevent path escape attacks',
+        category,
+        remediation: 'Replace symlink with actual file',
+        relativePath,
+      };
+      this.stats.skippedFiles++;
+      return result;
+    }
+
+    // SECURITY [C3]: Reject non-regular files
+    if (!lstat.isFile()) {
+      result.issue = {
+        type: IssueType.INVALID_PATH,
+        severity: Severity.HIGH,
+        message: `Not a regular file: ${relativePath}`,
+        details: `Found ${lstat.isDirectory() ? 'directory' : 'special file'} instead of file`,
+        category,
+        remediation: 'Only regular files are allowed',
+        relativePath,
+      };
+      this.stats.skippedFiles++;
+      return result;
+    }
+
+    result.exists = true;
+
+    // SECURITY [H2]: In quick mode (no hash), size MUST be present
+    if (!this.options.verifyHashes) {
+      if (entry.size === null || entry.size === undefined) {
+        result.issue = {
+          type: IssueType.SCHEMA_VIOLATION,
+          severity: Severity.HIGH,
+          message: `Missing size in manifest: ${relativePath}`,
+          details: 'Size is required when hash verification is disabled',
+          category,
+          remediation: 'Use full validation mode or update manifest with size information',
+          relativePath,
+        };
+        this.stats.skippedFiles++;
+        return result;
+      }
+    }
+
+    // Verify file size
+    const actualSize = lstat.size;
+    if (entry.size !== null && entry.size !== undefined) {
+      result.sizeValid = actualSize === entry.size;
+
+      if (!result.sizeValid) {
+        this.log(`Size mismatch: ${relativePath} (expected ${entry.size}, got ${actualSize})`);
+
+        // In quick mode, size mismatch is a failure
+        if (!this.options.verifyHashes) {
+          result.issue = {
+            type: IssueType.SIZE_MISMATCH,
+            severity: getSeverityForCategory(category),
+            message: `File size mismatch: ${relativePath}`,
+            details: `Expected: ${entry.size} bytes, Got: ${actualSize} bytes`,
+            category,
+            remediation: this.sourceDir
+              ? "Run 'aios validate --repair' to restore"
+              : 'Re-run installation',
+            relativePath,
+          };
+          this.stats.corruptedFiles++;
+          return result;
+        }
+      }
+    }
+
+    // Verify hash (full validation)
     if (this.options.verifyHashes && entry.hash) {
       try {
         const actualHash = `sha256:${hashFile(absolutePath)}`;
-        const expectedHash = entry.hash.toLowerCase();
-        result.hashValid = hashesMatch(actualHash, expectedHash);
+        result.hashValid = hashesMatch(actualHash, entry.hash);
 
         if (!result.hashValid) {
           result.issue = {
             type: IssueType.CORRUPTED_FILE,
             severity: getSeverityForCategory(category),
-            message: `Corrupted file (hash mismatch): ${relativePath}`,
-            details: `Expected: ${expectedHash.substring(0, 24)}..., Got: ${actualHash.substring(0, 24)}...`,
+            message: `Hash mismatch: ${relativePath}`,
+            details: `Expected: ${entry.hash.substring(0, 24)}..., Got: ${actualHash.substring(0, 24)}...`,
             category,
             remediation: this.sourceDir
-              ? `Replace from source: ${path.join(this.aiosCoreSource, relativePath)}`
-              : 'Re-run installation to restore corrupted files',
+              ? "Run 'aios validate --repair' to restore"
+              : 'Re-run installation',
+            relativePath,
           };
           this.stats.corruptedFiles++;
           return result;
         }
       } catch (error) {
-        this.log(`Hash verification failed for ${relativePath}: ${error.message}`);
-        result.hashValid = null;
-        this.stats.skippedFiles++;
+        // SECURITY [H3]: Hash errors are failures, not skips
+        result.issue = {
+          type: IssueType.HASH_ERROR,
+          severity: Severity.HIGH,
+          message: `Hash verification error: ${relativePath}`,
+          details: error.message,
+          category,
+          remediation: 'Check file accessibility and try again',
+          relativePath,
+        };
+        this.stats.corruptedFiles++;
+        return result;
       }
     }
 
@@ -336,7 +657,8 @@ class PostInstallValidator {
   }
 
   /**
-   * Scan for extra files not in manifest (optional)
+   * Scan for extra files not in manifest
+   * SECURITY [H6]: Implements depth and file count limits
    *
    * @returns {Promise<Array>} - List of extra file paths
    */
@@ -347,22 +669,46 @@ class PostInstallValidator {
 
     const manifestPaths = new Set(this.manifest.files.map((f) => f.path.toLowerCase()));
     const extraFiles = [];
+    let filesScanned = 0;
 
-    const scanDir = async (dir, basePath) => {
+    const scanDir = async (dir, basePath, depth = 0) => {
+      // SECURITY [H6]: Depth limit
+      if (depth > SecurityLimits.MAX_SCAN_DEPTH) {
+        this.log(`SECURITY: Max scan depth exceeded at ${dir}`);
+        return;
+      }
+
+      // SECURITY [H6]: File count limit
+      if (filesScanned >= SecurityLimits.MAX_SCAN_FILES) {
+        this.log('SECURITY: Max scan file count exceeded');
+        return;
+      }
+
       if (!fs.existsSync(dir)) return;
 
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      let entries;
+      try {
+        entries = fs.readdirSync(dir, { withFileTypes: true });
+      } catch (error) {
+        this.log(`Cannot read directory: ${dir} - ${error.message}`);
+        return;
+      }
 
       for (const entry of entries) {
+        if (filesScanned >= SecurityLimits.MAX_SCAN_FILES) break;
+
         const fullPath = path.join(dir, entry.name);
         const relativePath = path.relative(basePath, fullPath).replace(/\\/g, '/');
 
+        filesScanned++;
+
         if (entry.isDirectory()) {
-          await scanDir(fullPath, basePath);
+          await scanDir(fullPath, basePath, depth + 1);
         } else if (entry.isFile()) {
-          // Skip manifest itself and installed manifest
+          // Skip manifests
           if (
             relativePath === 'install-manifest.yaml' ||
+            relativePath === 'install-manifest.yaml.minisig' ||
             relativePath === '.installed-manifest.yaml'
           ) {
             continue;
@@ -373,6 +719,7 @@ class PostInstallValidator {
             this.stats.extraFiles++;
           }
         }
+        // Symlinks and special files are silently ignored in extra detection
       }
     };
 
@@ -392,6 +739,7 @@ class PostInstallValidator {
 
     // Reset state
     this.issues = [];
+    this.manifestVerified = false;
     this.stats = {
       totalFiles: 0,
       validFiles: 0,
@@ -401,20 +749,20 @@ class PostInstallValidator {
       skippedFiles: 0,
     };
 
-    // Check target directory exists
+    // Check target directory
     if (!fs.existsSync(this.aiosCoreTarget)) {
       this.issues.push({
         type: IssueType.MISSING_FILE,
         severity: Severity.CRITICAL,
         message: 'AIOS-Core directory not found',
         details: `Expected at: ${this.aiosCoreTarget}`,
-        remediation: 'Run `npx aios-core install` to install AIOS-Core',
+        remediation: 'Run `npx aios-core install`',
+        relativePath: null,
       });
-
       return this.generateReport(startTime);
     }
 
-    // Load manifest
+    // Load and verify manifest
     const manifest = await this.loadManifest();
     if (!manifest) {
       return this.generateReport(startTime);
@@ -436,16 +784,17 @@ class PostInstallValidator {
       }
     }
 
-    // Detect extra files (optional)
+    // Detect extra files
     const extraFiles = await this.detectExtraFiles();
     for (const extraPath of extraFiles) {
       this.issues.push({
         type: IssueType.EXTRA_FILE,
         severity: Severity.INFO,
-        message: `Extra file not in manifest: ${extraPath}`,
-        details: 'This file was not part of the original installation',
+        message: `Extra file: ${extraPath}`,
+        details: 'File not in manifest',
         category: categorizeFile(extraPath),
-        remediation: 'Review if this file should be kept or removed',
+        remediation: 'Review if this file should be kept',
+        relativePath: extraPath,
       });
     }
 
@@ -453,16 +802,16 @@ class PostInstallValidator {
   }
 
   /**
-   * Generate comprehensive validation report
+   * Generate validation report
    *
-   * @param {number} startTime - Validation start timestamp
-   * @param {Array} [fileResults] - Individual file validation results
-   * @returns {Object} - Validation report
+   * @param {number} startTime - Start timestamp
+   * @param {Array} [fileResults] - File validation results
+   * @returns {Object} - Report
    */
   generateReport(startTime, fileResults = []) {
     const duration = Date.now() - startTime;
 
-    // Group issues by severity
+    // Group by severity
     const issuesBySeverity = {
       [Severity.CRITICAL]: [],
       [Severity.HIGH]: [],
@@ -475,17 +824,17 @@ class PostInstallValidator {
       issuesBySeverity[issue.severity].push(issue);
     }
 
-    // Group missing files by category
+    // Group missing by category
     const missingByCategory = {};
     for (const issue of this.issues.filter((i) => i.type === IssueType.MISSING_FILE)) {
       const category = issue.category || FileCategory.OTHER;
       if (!missingByCategory[category]) {
         missingByCategory[category] = [];
       }
-      missingByCategory[category].push(issue.message.replace('Missing file: ', ''));
+      missingByCategory[category].push(issue.relativePath);
     }
 
-    // Determine overall status
+    // Determine status
     let status = 'success';
     if (issuesBySeverity[Severity.CRITICAL].length > 0) {
       status = 'failed';
@@ -498,7 +847,7 @@ class PostInstallValidator {
       status = 'info';
     }
 
-    // Calculate integrity score (0-100)
+    // Integrity score
     const integrityScore =
       this.stats.totalFiles > 0
         ? Math.round((this.stats.validFiles / this.stats.totalFiles) * 100)
@@ -507,13 +856,14 @@ class PostInstallValidator {
     return {
       status,
       integrityScore,
+      manifestVerified: this.manifestVerified,
       timestamp: new Date().toISOString(),
       duration: `${duration}ms`,
       manifest: this.manifest
         ? {
             version: this.manifest.version,
             generatedAt: this.manifest.generated_at,
-            totalFiles: this.manifest.file_count,
+            totalFiles: this.manifest.files.length,
           }
         : null,
       stats: { ...this.stats },
@@ -533,54 +883,48 @@ class PostInstallValidator {
   }
 
   /**
-   * Generate actionable recommendations based on issues
+   * Generate recommendations
    *
-   * @returns {Array<string>} - List of recommendations
+   * @returns {Array<string>} - Recommendations
    */
   generateRecommendations() {
     const recommendations = [];
 
+    if (!this.manifestVerified && this.options.requireSignature) {
+      recommendations.push(
+        'CRITICAL: Manifest signature verification failed. Do not trust validation results.'
+      );
+    }
+
     if (this.stats.missingFiles > 0) {
       if (this.stats.missingFiles > 50) {
-        recommendations.push(
-          'Large number of missing files detected. Consider re-running `npx aios-core install` with fresh install option.'
-        );
+        recommendations.push('Consider re-running full installation.');
       } else {
         recommendations.push(
-          `${this.stats.missingFiles} file(s) missing. Run \`npx aios-core validate --repair\` to restore missing files.`
+          `${this.stats.missingFiles} file(s) missing. Run 'aios validate --repair'.`
         );
       }
     }
 
     if (this.stats.corruptedFiles > 0) {
       recommendations.push(
-        `${this.stats.corruptedFiles} file(s) corrupted. Run \`npx aios-core validate --repair\` to restore original files.`
+        `${this.stats.corruptedFiles} file(s) corrupted. Run 'aios validate --repair'.`
       );
     }
 
-    // Check for critical categories
-    const criticalMissing = this.issues.filter(
-      (i) => i.type === IssueType.MISSING_FILE && i.severity === Severity.CRITICAL
-    );
-
-    if (criticalMissing.length > 0) {
-      recommendations.push(
-        'Critical core files are missing. The framework may not function correctly until repaired.'
-      );
-    }
-
-    if (this.stats.validFiles === this.stats.totalFiles) {
-      recommendations.push('Installation is complete and verified. No action required.');
+    if (this.stats.validFiles === this.stats.totalFiles && this.stats.totalFiles > 0) {
+      recommendations.push('Installation verified successfully.');
     }
 
     return recommendations;
   }
 
   /**
-   * Repair installation by copying missing/corrupted files from source
+   * Repair installation by copying missing/corrupted files
+   * SECURITY [C4]: Verifies source file hash before copying
    *
    * @param {Object} [options] - Repair options
-   * @param {boolean} [options.dryRun=false] - If true, only report what would be repaired
+   * @param {boolean} [options.dryRun=false] - Only report, don't copy
    * @param {Function} [options.onProgress] - Progress callback
    * @returns {Promise<Object>} - Repair result
    */
@@ -588,22 +932,48 @@ class PostInstallValidator {
     const dryRun = options.dryRun === true;
     const onProgress = options.onProgress || (() => {});
 
-    if (!this.sourceDir || !fs.existsSync(this.aiosCoreSource)) {
+    // SECURITY [C4]: Repair requires hash verification enabled
+    if (!this.options.verifyHashes) {
       return {
         success: false,
-        error: 'Source directory not available for repair',
+        error: 'Repair requires hash verification to be enabled',
         repaired: [],
         failed: [],
+        skipped: [],
       };
     }
 
-    // Run validation first if not already done
+    // SECURITY [C4]: Repair requires verified manifest
+    if (this.options.requireSignature && !this.manifestVerified) {
+      return {
+        success: false,
+        error: 'Repair requires a verified manifest signature',
+        repaired: [],
+        failed: [],
+        skipped: [],
+      };
+    }
+
+    if (!this.sourceDir || !fs.existsSync(this.aiosCoreSource)) {
+      return {
+        success: false,
+        error: 'Source directory not available',
+        repaired: [],
+        failed: [],
+        skipped: [],
+      };
+    }
+
+    // Run validation first if needed
     if (this.issues.length === 0 && this.stats.totalFiles === 0) {
       await this.validate();
     }
 
     const repairableIssues = this.issues.filter(
-      (i) => i.type === IssueType.MISSING_FILE || i.type === IssueType.CORRUPTED_FILE
+      (i) =>
+        i.type === IssueType.MISSING_FILE ||
+        i.type === IssueType.CORRUPTED_FILE ||
+        i.type === IssueType.SIZE_MISMATCH
     );
 
     const result = {
@@ -616,29 +986,86 @@ class PostInstallValidator {
 
     for (let i = 0; i < repairableIssues.length; i++) {
       const issue = repairableIssues[i];
-      const relativePath = issue.message.replace(/^(Missing|Corrupted) file.*: /, '');
-      const sourcePath = path.join(this.aiosCoreSource, relativePath);
-      const targetPath = path.join(this.aiosCoreTarget, relativePath);
+      // SECURITY [H4]: Use relativePath from issue, not parsed from message
+      const relativePath = issue.relativePath;
+
+      if (!relativePath) {
+        result.failed.push({ path: 'unknown', reason: 'Missing path in issue' });
+        continue;
+      }
+
+      const sourcePath = path.resolve(this.aiosCoreSource, relativePath);
+      const targetPath = path.resolve(this.aiosCoreTarget, relativePath);
 
       onProgress(i + 1, repairableIssues.length, relativePath);
 
-      if (!fs.existsSync(sourcePath)) {
-        result.failed.push({
-          path: relativePath,
-          reason: 'Source file not found',
-        });
+      // SECURITY: Path containment for source
+      if (!isPathContained(sourcePath, this.aiosCoreSource)) {
+        result.skipped.push({ path: relativePath, reason: 'Source path traversal blocked' });
+        continue;
+      }
+
+      // SECURITY: Path containment for target
+      if (!isPathContained(targetPath, this.aiosCoreTarget)) {
+        result.skipped.push({ path: relativePath, reason: 'Target path traversal blocked' });
+        continue;
+      }
+
+      // Check source exists
+      let sourceLstat;
+      try {
+        sourceLstat = fs.lstatSync(sourcePath);
+      } catch (error) {
+        result.failed.push({ path: relativePath, reason: 'Source file not found' });
         result.success = false;
         continue;
       }
 
+      // SECURITY [C3]: Reject source symlinks
+      if (sourceLstat.isSymbolicLink()) {
+        result.skipped.push({ path: relativePath, reason: 'Source is symlink' });
+        continue;
+      }
+
+      if (!sourceLstat.isFile()) {
+        result.skipped.push({ path: relativePath, reason: 'Source is not a regular file' });
+        continue;
+      }
+
+      // SECURITY [C4]: Verify source file hash matches manifest
+      const manifestEntry = this.manifest.files.find((f) => f.path === relativePath);
+      if (!manifestEntry || !manifestEntry.hash) {
+        result.failed.push({ path: relativePath, reason: 'No hash in manifest for verification' });
+        result.success = false;
+        continue;
+      }
+
+      try {
+        const sourceHash = `sha256:${hashFile(sourcePath)}`;
+        if (!hashesMatch(sourceHash, manifestEntry.hash)) {
+          result.failed.push({
+            path: relativePath,
+            reason: 'Source file hash does not match signed manifest',
+          });
+          result.success = false;
+          continue;
+        }
+      } catch (error) {
+        result.failed.push({ path: relativePath, reason: `Cannot hash source: ${error.message}` });
+        result.success = false;
+        continue;
+      }
+
+      // Dry run - just report
       if (dryRun) {
         result.repaired.push({
           path: relativePath,
-          action: issue.type === IssueType.MISSING_FILE ? 'copy' : 'replace',
+          action: issue.type === IssueType.MISSING_FILE ? 'would_copy' : 'would_replace',
         });
         continue;
       }
 
+      // Perform copy
       try {
         await fs.ensureDir(path.dirname(targetPath));
         await fs.copy(sourcePath, targetPath, { overwrite: true });
@@ -647,10 +1074,7 @@ class PostInstallValidator {
           action: issue.type === IssueType.MISSING_FILE ? 'copied' : 'replaced',
         });
       } catch (error) {
-        result.failed.push({
-          path: relativePath,
-          reason: error.message,
-        });
+        result.failed.push({ path: relativePath, reason: error.message });
         result.success = false;
       }
     }
@@ -659,8 +1083,8 @@ class PostInstallValidator {
   }
 
   /**
-   * Log message if verbose mode is enabled
-   * @param {string} message - Message to log
+   * Log if verbose
+   * @param {string} message - Message
    */
   log(message) {
     if (this.options.verbose) {
@@ -670,19 +1094,16 @@ class PostInstallValidator {
 }
 
 /**
- * Format validation report for console output
+ * Format report for console
  *
- * @param {Object} report - Validation report from PostInstallValidator
- * @param {Object} [options] - Formatting options
- * @param {boolean} [options.colors=true] - Use ANSI colors
- * @param {boolean} [options.detailed=false] - Show detailed file list
- * @returns {string} - Formatted report string
+ * @param {Object} report - Validation report
+ * @param {Object} [options] - Format options
+ * @returns {string} - Formatted report
  */
 function formatReport(report, options = {}) {
   const useColors = options.colors !== false;
   const detailed = options.detailed === true;
 
-  // Color helpers
   const c = {
     reset: useColors ? '\x1b[0m' : '',
     bold: useColors ? '\x1b[1m' : '',
@@ -697,12 +1118,18 @@ function formatReport(report, options = {}) {
 
   const lines = [];
 
-  // Header
   lines.push('');
   lines.push(`${c.bold}AIOS-Core Installation Validation Report${c.reset}`);
   lines.push(`${c.gray}${'─'.repeat(50)}${c.reset}`);
 
-  // Status indicator
+  // Signature status
+  if (report.manifestVerified) {
+    lines.push(`${c.green}✓${c.reset} Manifest signature: ${c.green}VERIFIED${c.reset}`);
+  } else {
+    lines.push(`${c.red}✗${c.reset} Manifest signature: ${c.red}NOT VERIFIED${c.reset}`);
+  }
+
+  // Status
   const statusIcon =
     {
       success: `${c.green}✓${c.reset}`,
@@ -722,13 +1149,7 @@ function formatReport(report, options = {}) {
   lines.push(`${statusIcon} Status: ${statusText}`);
   lines.push(`${c.dim}  Integrity Score: ${report.integrityScore}%${c.reset}`);
 
-  if (report.manifest) {
-    lines.push(`${c.dim}  Manifest Version: ${report.manifest.version}${c.reset}`);
-  }
-
   lines.push('');
-
-  // Summary stats
   lines.push(`${c.bold}Summary${c.reset}`);
   lines.push(`  Total files:     ${report.summary.total}`);
   lines.push(`  ${c.green}Valid:${c.reset}           ${report.summary.valid}`);
@@ -744,35 +1165,6 @@ function formatReport(report, options = {}) {
   }
   if (report.summary.skipped > 0) {
     lines.push(`  ${c.gray}Skipped:${c.reset}         ${report.summary.skipped}`);
-  }
-
-  // Missing files by category
-  if (Object.keys(report.missingByCategory).length > 0) {
-    lines.push('');
-    lines.push(`${c.bold}Missing Files by Category${c.reset}`);
-
-    for (const [category, files] of Object.entries(report.missingByCategory)) {
-      const categoryColor =
-        {
-          core: c.red,
-          cli: c.yellow,
-          development: c.yellow,
-          infrastructure: c.cyan,
-          product: c.cyan,
-          workflow: c.blue,
-        }[category] || c.gray;
-
-      lines.push(`  ${categoryColor}${category}/${c.reset} (${files.length} files)`);
-
-      if (detailed) {
-        for (const file of files.slice(0, 10)) {
-          lines.push(`    ${c.dim}- ${file}${c.reset}`);
-        }
-        if (files.length > 10) {
-          lines.push(`    ${c.dim}... and ${files.length - 10} more${c.reset}`);
-        }
-      }
-    }
   }
 
   // Critical issues
@@ -798,24 +1190,25 @@ function formatReport(report, options = {}) {
   }
 
   lines.push('');
-  lines.push(`${c.dim}Validation completed in ${report.duration}${c.reset}`);
+  lines.push(`${c.dim}Completed in ${report.duration}${c.reset}`);
   lines.push('');
 
   return lines.join('\n');
 }
 
 /**
- * Quick validation function for CLI usage
+ * Quick validation helper
  *
- * @param {string} targetDir - Project directory to validate
- * @param {Object} [options] - Validation options
- * @returns {Promise<Object>} - Validation report
+ * @param {string} targetDir - Target directory
+ * @param {Object} [options] - Options
+ * @returns {Promise<Object>} - Report
  */
 async function quickValidate(targetDir, options = {}) {
   const validator = new PostInstallValidator(targetDir, options.sourceDir, {
     verifyHashes: options.verifyHashes !== false,
     detectExtras: options.detectExtras === true,
     verbose: options.verbose === true,
+    requireSignature: options.requireSignature !== false,
     onProgress: options.onProgress,
   });
 
@@ -829,4 +1222,7 @@ module.exports = {
   Severity,
   IssueType,
   FileCategory,
+  SecurityLimits,
+  isPathContained,
+  validateManifestEntry,
 };
