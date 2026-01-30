@@ -201,7 +201,10 @@ async function runValidation(options) {
     // Exit with appropriate code
     if (report.status === 'failed') {
       process.exit(1);
-    } else if (report.status === 'warning' && report.stats.missingFiles > 0) {
+    } else if (
+      report.status === 'warning' &&
+      (report.stats.missingFiles > 0 || report.stats.corruptedFiles > 0)
+    ) {
       process.exit(1);
     } else {
       process.exit(0);

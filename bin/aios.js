@@ -160,7 +160,11 @@ async function runValidate() {
 
       console.log(formatReport(report, { colors: true }));
 
-      if (report.status === 'failed' || report.stats.missingFiles > 0) {
+      if (
+        report.status === 'failed' ||
+        report.stats.missingFiles > 0 ||
+        report.stats.corruptedFiles > 0
+      ) {
         process.exit(1);
       }
     } catch (validatorError) {
