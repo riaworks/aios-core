@@ -88,7 +88,7 @@ describe('PostInstallValidator Security Tests', () => {
       const result = validateManifestEntry(
         {
           path: 'core/config.js',
-          hash: 'sha256:a'.repeat(64),
+          hash: 'sha256:' + 'a'.repeat(64),
           size: 1234,
         },
         0
@@ -101,7 +101,7 @@ describe('PostInstallValidator Security Tests', () => {
       const result = validateManifestEntry(
         {
           path: 'file.txt',
-          hash: 'sha256:a'.repeat(64),
+          hash: 'sha256:' + 'a'.repeat(64),
           malicious: 'payload',
         },
         0

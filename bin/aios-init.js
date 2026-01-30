@@ -817,8 +817,11 @@ See .aios-core/user-guide.md for complete documentation.
     const validator = new PostInstallValidator(context.projectRoot, context.frameworkLocation, {
       verifyHashes: false,
       verbose: false,
-      // Disable signature requirement during installation (manifest not yet signed)
-      // Production validation should use requireSignature: true
+      // SECURITY NOTE: Signature verification is disabled during initial installation
+      // because the manifest signature (.minisig) may not yet be present in the package.
+      // This is acceptable for post-install validation which only checks file presence.
+      // For production integrity checks, users should run `aios validate` which
+      // enforces signature verification when the .minisig file is present.
       requireSignature: false,
     });
 
@@ -843,11 +846,16 @@ See .aios-core/user-guide.md for complete documentation.
       console.log(chalk.green('✓') + ` Installation verified (${report.stats.validFiles} files)`);
     }
   } catch (validationError) {
-    // Non-critical - don't fail installation if validator has issues
-    console.log(chalk.yellow('⚠') + ' Could not run post-installation validation');
-    if (process.env.DEBUG) {
-      console.log(chalk.dim(`   ${validationError.message}`));
+    // Log validation errors but don't fail installation
+    // This allows installation to proceed even if validator module has issues
+    // However, users should investigate validation errors manually
+    validationPassed = false;
+    console.log(chalk.yellow('⚠') + ' Post-installation validation encountered an error');
+    console.log(chalk.dim(`   Error: ${validationError.message}`));
+    if (process.env.DEBUG || process.env.AIOS_DEBUG) {
+      console.log(chalk.dim(`   Stack: ${validationError.stack}`));
     }
+    console.log(chalk.dim('   Run `aios validate` to check installation integrity'));
   }
 
   // Summary

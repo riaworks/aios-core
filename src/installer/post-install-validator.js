@@ -734,7 +734,12 @@ class PostInstallValidator {
       return [];
     }
 
-    const manifestPaths = new Set(this.manifest.files.map((f) => f.path.toLowerCase()));
+    // SECURITY: Only use case-insensitive comparison on Windows
+    // On case-sensitive filesystems (Linux/macOS), preserve case to detect
+    // malicious files that differ only by case (e.g., Malicious.js vs malicious.js)
+    const isWindows = process.platform === 'win32';
+    const normalizePath = (p) => (isWindows ? p.toLowerCase() : p);
+    const manifestPaths = new Set(this.manifest.files.map((f) => normalizePath(f.path)));
     const extraFiles = [];
     let filesScanned = 0;
 
@@ -781,7 +786,7 @@ class PostInstallValidator {
             continue;
           }
 
-          if (!manifestPaths.has(relativePath.toLowerCase())) {
+          if (!manifestPaths.has(normalizePath(relativePath))) {
             extraFiles.push(relativePath);
             this.stats.extraFiles++;
           }

@@ -76,7 +76,7 @@ This PR implements comprehensive security hardening for the post-install validat
 
 ## Test Results
 
-```
+```text
 Security Audit Results:
 - Total tests: 31
 - Passed: 31 (100%)

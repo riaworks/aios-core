@@ -26,14 +26,29 @@ const fs = require('fs');
  * DO NOT load this from external files or environment variables.
  */
 const PINNED_PUBLIC_KEY = {
-  // Key ID (first 8 bytes of key, used for key identification)
-  keyId: 'AIOS0001',
+  // Key ID (8 bytes, base64 encoded) - opaque identifier, not UTF-8 text
+  // This is compared as raw bytes against the signature's key ID
+  keyId: Buffer.from('AIOS0001').toString('base64'), // 'QUlPUzAwMDE='
   // Ed25519 public key (32 bytes, base64 encoded)
   // TODO: Replace with actual generated public key before production
   publicKey: 'REPLACE_WITH_ACTUAL_PUBLIC_KEY_BASE64_HERE',
   // Algorithm identifier
   algorithm: 'Ed25519',
 };
+
+/**
+ * Placeholder key identifier - used to detect uninitialized keys
+ * @constant {string}
+ */
+const PLACEHOLDER_KEY = 'REPLACE_WITH_ACTUAL_PUBLIC_KEY_BASE64_HERE';
+
+/**
+ * Check if the pinned public key is still the placeholder
+ * @returns {boolean} True if key needs to be replaced
+ */
+function isPlaceholderKey() {
+  return PINNED_PUBLIC_KEY.publicKey === PLACEHOLDER_KEY;
+}
 
 /**
  * Signature verification result
@@ -130,6 +145,16 @@ function verifyEd25519(message, signature, publicKey) {
 }
 
 /**
+ * Compute Blake2b-512 hash for prehashed signatures
+ * @param {Buffer} data - Data to hash
+ * @returns {Buffer} 64-byte Blake2b-512 hash
+ */
+function blake2b512(data) {
+  // Node.js 16+ supports blake2b512 natively
+  return crypto.createHash('blake2b512').update(data).digest();
+}
+
+/**
  * Verify manifest signature against pinned public key
  *
  * SECURITY: This function MUST be called BEFORE parsing the manifest YAML.
@@ -149,24 +174,31 @@ function verifyManifestSignature(manifestContent, signatureContent, options = {}
   };
 
   try {
-    // Parse signature file
-    const sig = parseMinisignSignature(signatureContent);
-
-    // Verify algorithm
-    if (sig.algorithm !== 'Ed') {
-      result.error = 'Unsupported signature algorithm (expected Ed25519)';
+    // SECURITY: Check for placeholder key before any verification
+    const pubKey = options.publicKey || PINNED_PUBLIC_KEY;
+    if (!options.publicKey && isPlaceholderKey()) {
+      result.error =
+        'SECURITY ERROR: Public key has not been configured. ' +
+        'Replace PINNED_PUBLIC_KEY in manifest-signature.js with the actual Ed25519 public key.';
       return result;
     }
 
-    // Get public key (allow override for testing)
-    const pubKey = options.publicKey || PINNED_PUBLIC_KEY;
+    // Parse signature file
+    const sig = parseMinisignSignature(signatureContent);
 
-    // Verify key ID matches
-    const expectedKeyId = Buffer.from(pubKey.keyId, 'utf8');
-    result.keyId = sig.keyId.toString('utf8').replace(/\0/g, '');
+    // Verify algorithm - minisign uses "Ed" for pure Ed25519, "ED" for prehashed
+    const isPrehashed = sig.algorithm === 'ED';
+    if (sig.algorithm !== 'Ed' && sig.algorithm !== 'ED') {
+      result.error = `Unsupported signature algorithm '${sig.algorithm}' (expected 'Ed' or 'ED')`;
+      return result;
+    }
 
-    if (!sig.keyId.slice(0, expectedKeyId.length).equals(expectedKeyId)) {
-      result.error = `Key ID mismatch: expected ${pubKey.keyId}, got ${result.keyId}`;
+    // Verify key ID matches (compare as raw bytes, not UTF-8)
+    const expectedKeyId = Buffer.from(pubKey.keyId, 'base64');
+    result.keyId = sig.keyId.toString('hex'); // Display as hex for debugging
+
+    if (!sig.keyId.equals(expectedKeyId)) {
+      result.error = `Key ID mismatch: expected ${expectedKeyId.toString('hex')}, got ${result.keyId}`;
       return result;
     }
 
@@ -178,9 +210,9 @@ function verifyManifestSignature(manifestContent, signatureContent, options = {}
     }
 
     // Verify signature
-    // Minisign signs: Blake2b-512(message) for prehashed mode, or message directly
-    // For simplicity, we use direct message signing (small manifests)
-    const isValid = verifyEd25519(manifestContent, sig.signature, publicKeyBytes);
+    // Minisign uses Blake2b-512(message) for prehashed mode ("ED"), or message directly ("Ed")
+    const messageToVerify = isPrehashed ? blake2b512(manifestContent) : manifestContent;
+    const isValid = verifyEd25519(messageToVerify, sig.signature, publicKeyBytes);
 
     if (!isValid) {
       result.error = 'Signature verification failed';
@@ -189,6 +221,11 @@ function verifyManifestSignature(manifestContent, signatureContent, options = {}
 
     // If trusted comment exists, verify global signature
     if (sig.trustedComment && sig.globalSignature) {
+      // SECURITY: Validate global signature length (must be 64 bytes for Ed25519)
+      if (sig.globalSignature.length !== 64) {
+        result.error = `Invalid global signature length: expected 64 bytes, got ${sig.globalSignature.length}`;
+        return result;
+      }
       const globalMessage = Buffer.concat([sig.signature, Buffer.from(sig.trustedComment)]);
       const globalValid = verifyEd25519(globalMessage, sig.globalSignature, publicKeyBytes);
       if (!globalValid) {
@@ -280,6 +317,7 @@ module.exports = {
   verifyManifestSignature,
   signatureExists,
   loadAndVerifyManifest,
+  isPlaceholderKey,
   parseMinisignSignature,
   PINNED_PUBLIC_KEY,
 };

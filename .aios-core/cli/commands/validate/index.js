@@ -24,18 +24,30 @@ const fs = require('fs-extra');
 const chalk = require('chalk');
 const ora = require('ora');
 
+/**
+ * Exit codes for CLI consistency
+ * @enum {number}
+ */
+const ExitCode = {
+  SUCCESS: 0,
+  VALIDATION_FAILED: 1,
+  ERROR: 2,
+};
+
 // Resolve validator module path
 const validatorPath = path.resolve(__dirname, '../../../../src/installer/post-install-validator');
 let PostInstallValidator, formatReport, quickValidate;
 
+let validatorLoadError = null;
 try {
   const validator = require(validatorPath);
   PostInstallValidator = validator.PostInstallValidator;
   formatReport = validator.formatReport;
   quickValidate = validator.quickValidate;
 } catch (error) {
-  // Fallback for development/testing
-  console.error(chalk.yellow('Warning: Could not load validator module'), error.message);
+  // Store error for later - will be reported during command execution
+  // This allows proper JSON output when --json flag is used
+  validatorLoadError = error;
 }
 
 /**
@@ -106,7 +118,8 @@ async function runValidation(options) {
           {
             status: 'failed',
             error: 'AIOS-Core not found in current directory',
-            path: projectRoot,
+            // SECURITY: Sanitize path - only show relative indicator
+            location: '.aios-core',
           },
           null,
           2
@@ -117,18 +130,61 @@ async function runValidation(options) {
       console.error(chalk.dim(`Expected at: ${aiosCoreDir}`));
       console.error(chalk.dim('\nRun `npx aios-core install` to install AIOS-Core'));
     }
-    process.exit(2);
+    process.exit(ExitCode.ERROR);
   }
 
   // Check if validator module is available
   if (!PostInstallValidator) {
-    console.error(chalk.red('\nError: Validator module not available'));
-    console.error(chalk.dim('This may indicate a corrupted installation'));
-    process.exit(2);
+    const errorMsg = validatorLoadError
+      ? `Validator module failed to load: ${validatorLoadError.message}`
+      : 'Validator module not available';
+
+    if (options.json) {
+      console.log(
+        JSON.stringify(
+          {
+            status: 'error',
+            error: errorMsg,
+            hint: 'This may indicate a corrupted installation',
+          },
+          null,
+          2
+        )
+      );
+    } else {
+      console.error(chalk.red(`\nError: ${errorMsg}`));
+      console.error(chalk.dim('This may indicate a corrupted installation'));
+    }
+    process.exit(ExitCode.ERROR);
   }
 
   // Determine source directory for repairs
   let sourceDir = options.source;
+
+  // SECURITY: Validate --source directory if provided
+  if (sourceDir) {
+    const sourceManifest = path.join(sourceDir, '.aios-core', 'install-manifest.yaml');
+    if (!fs.existsSync(sourceManifest)) {
+      if (options.json) {
+        console.log(
+          JSON.stringify(
+            {
+              status: 'error',
+              error: 'Invalid source directory: manifest not found',
+              path: sourceDir,
+            },
+            null,
+            2
+          )
+        );
+      } else {
+        console.error(chalk.red('\nError: Invalid source directory'));
+        console.error(chalk.dim(`Expected manifest at: ${sourceManifest}`));
+      }
+      process.exit(ExitCode.ERROR);
+    }
+  }
+
   if (!sourceDir && options.repair) {
     // Try to find source in common locations
     const possibleSources = [
@@ -145,6 +201,16 @@ async function runValidation(options) {
     }
   }
 
+  // Show spinner for non-JSON output (must be defined before validator for closure)
+  let spinner = null;
+  if (!options.json) {
+    console.log('');
+    spinner = ora({
+      text: 'Loading installation manifest...',
+      color: 'cyan',
+    }).start();
+  }
+
   // Create validator instance
   const validator = new PostInstallValidator(projectRoot, sourceDir, {
     verifyHashes: options.hash !== false,
@@ -159,16 +225,6 @@ async function runValidation(options) {
         },
   });
 
-  // Show spinner for non-JSON output
-  let spinner;
-  if (!options.json) {
-    console.log('');
-    spinner = ora({
-      text: 'Loading installation manifest...',
-      color: 'cyan',
-    }).start();
-  }
-
   try {
     // Run validation
     const report = await validator.validate();
@@ -178,7 +234,11 @@ async function runValidation(options) {
     }
 
     // Handle repair mode
+    let repairResult = null;
+    let repairAttempted = false;
+
     if (options.repair && (report.stats.missingFiles > 0 || report.stats.corruptedFiles > 0)) {
+      repairAttempted = true;
       if (!sourceDir) {
         if (!options.json) {
           console.error(chalk.yellow('\nWarning: Cannot repair - source directory not found'));
@@ -186,28 +246,65 @@ async function runValidation(options) {
             chalk.dim('Specify source with --source <dir> or ensure package is installed')
           );
         }
+        repairResult = {
+          success: false,
+          error: 'Source directory not found',
+          repaired: [],
+          failed: [],
+        };
       } else {
-        await runRepair(validator, options, spinner);
+        repairResult = await runRepair(validator, options, spinner);
       }
     }
 
     // Output results
     if (options.json) {
-      console.log(JSON.stringify(report, null, 2));
+      // Include repair results in JSON output for CI/CD pipelines
+      // SECURITY: Use explicit property copy to prevent prototype pollution
+      const output = {
+        status: report.status,
+        integrityScore: report.integrityScore,
+        manifestVerified: report.manifestVerified,
+        timestamp: report.timestamp,
+        duration: report.duration,
+        manifest: report.manifest,
+        stats: report.stats,
+        summary: report.summary,
+        recommendations: report.recommendations,
+        // Only include issues count in JSON to avoid leaking internal paths
+        issueCount: report.issues?.length ?? 0,
+        repair: repairAttempted
+          ? {
+              attempted: true,
+              success: repairResult?.success ?? false,
+              dryRun: options.dryRun === true,
+              repairedCount: repairResult?.repaired?.length ?? 0,
+              failedCount: repairResult?.failed?.length ?? 0,
+              repaired: repairResult?.repaired ?? [],
+              failed: repairResult?.failed ?? [],
+            }
+          : { attempted: false },
+      };
+      console.log(JSON.stringify(output, null, 2));
     } else {
       console.log(formatReport(report, { colors: true, detailed: options.detailed }));
     }
 
     // Exit with appropriate code
-    if (report.status === 'failed') {
-      process.exit(1);
+    // If repair was attempted and successful (not dry-run), exit 0
+    // If repair failed or was not attempted and there are issues, exit 1
+    if (repairAttempted && !options.dryRun && repairResult?.success) {
+      // Repair succeeded - exit 0
+      process.exit(ExitCode.SUCCESS);
+    } else if (report.status === 'failed') {
+      process.exit(ExitCode.VALIDATION_FAILED);
     } else if (
       report.status === 'warning' &&
       (report.stats.missingFiles > 0 || report.stats.corruptedFiles > 0)
     ) {
-      process.exit(1);
+      process.exit(ExitCode.VALIDATION_FAILED);
     } else {
-      process.exit(0);
+      process.exit(ExitCode.SUCCESS);
     }
   } catch (error) {
     if (spinner) {
@@ -220,6 +317,7 @@ async function runValidation(options) {
           {
             status: 'error',
             error: error.message,
+            // SECURITY: Only include stack in verbose mode for debugging
             stack: options.verbose ? error.stack : undefined,
           },
           null,
@@ -233,7 +331,7 @@ async function runValidation(options) {
       }
     }
 
-    process.exit(2);
+    process.exit(ExitCode.ERROR);
   }
 }
 
@@ -242,6 +340,7 @@ async function runValidation(options) {
  * @param {PostInstallValidator} validator - Validator instance
  * @param {Object} options - Command options
  * @param {Object} spinner - Ora spinner instance
+ * @returns {Object} Repair result with success status, repaired files, and failed files
  */
 async function runRepair(validator, options, spinner) {
   const dryRun = options.dryRun === true;
@@ -304,6 +403,8 @@ async function runRepair(validator, options, spinner) {
       }
     }
   }
+
+  return repairResult;
 }
 
 /**

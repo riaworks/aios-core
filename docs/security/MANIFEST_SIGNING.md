@@ -118,7 +118,7 @@ const PINNED_PUBLIC_KEY = {
 - Store `aios-core.key` in a secure location (password manager, HSM, etc.)
 - NEVER commit it to git
 - Add to `.gitignore`:
-  ```
+  ```gitignore
   *.key
   aios-core.key
   ```
@@ -169,7 +169,7 @@ const PINNED_PUBLIC_KEY = {
 
 The `.minisig` file follows the minisign format as specified at https://jedisct1.github.io/minisign/.
 
-```
+```text
 untrusted comment: signature from minisign secret key
 RUQf6LRCGA9i8...base64-encoded-signature-blob...
 trusted comment: timestamp:1234567890 file:install-manifest.yaml
