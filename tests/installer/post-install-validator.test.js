@@ -147,10 +147,10 @@ describe('PostInstallValidator Security Tests', () => {
       expect(result.error).toContain('non-negative integer');
     });
 
-    test('should reject non-file types', () => {
+    test('should reject unknown type values', () => {
       const result = validateManifestEntry({ path: 'dir/', type: 'directory' }, 0);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain("only type 'file'");
+      expect(result.error).toContain("invalid type 'directory'");
     });
 
     test('should reject arrays as entries', () => {
@@ -286,6 +286,76 @@ describe('PostInstallValidator Security Tests', () => {
       const sizeIssue = report.issues.find((i) => i.type === IssueType.SIZE_MISMATCH);
       expect(sizeIssue).toBeDefined();
       expect(report.stats.corruptedFiles).toBe(1);
+    });
+  });
+
+  describe('Missing Hash Detection (H7)', () => {
+    test('should fail when hash is missing but verifyHashes is true', async () => {
+      // Create manifest without hash but with size
+      await fs.writeFile(
+        path.join(targetDir, '.aios-core', 'install-manifest.yaml'),
+        'version: "1.0.0"\nfiles:\n  - path: test.txt\n    size: 7'
+      );
+      await fs.writeFile(path.join(targetDir, '.aios-core', 'test.txt'), 'content');
+
+      const validator = new PostInstallValidator(targetDir, null, {
+        requireSignature: false,
+        verifyHashes: true, // Full validation mode
+      });
+
+      const report = await validator.validate();
+
+      // Should have a schema violation for missing hash
+      const schemaIssue = report.issues.find((i) => i.type === IssueType.SCHEMA_VIOLATION);
+      expect(schemaIssue).toBeDefined();
+      expect(schemaIssue.message).toContain('Missing hash in manifest');
+      expect(schemaIssue.details).toContain('Hash verification enabled');
+      expect(report.stats.corruptedFiles).toBe(1);
+    });
+
+    test('should fail when hash is empty string but verifyHashes is true', async () => {
+      // Create manifest with empty hash (YAML null becomes empty after FAILSAFE parsing)
+      // Using explicit empty string to test falsy hash values
+      await fs.writeFile(
+        path.join(targetDir, '.aios-core', 'install-manifest.yaml'),
+        'version: "1.0.0"\nfiles:\n  - path: test.txt\n    hash: ""\n    size: 7'
+      );
+      await fs.writeFile(path.join(targetDir, '.aios-core', 'test.txt'), 'content');
+
+      const validator = new PostInstallValidator(targetDir, null, {
+        requireSignature: false,
+        verifyHashes: true,
+      });
+
+      const report = await validator.validate();
+
+      // Empty hash should fail format validation during manifest parsing
+      const invalidIssue = report.issues.find((i) => i.type === IssueType.INVALID_MANIFEST);
+      expect(invalidIssue).toBeDefined();
+      expect(invalidIssue.details).toContain('invalid hash format');
+    });
+
+    test('should pass when hash is missing but verifyHashes is false (quick mode)', async () => {
+      // Create manifest without hash but with size
+      await fs.writeFile(
+        path.join(targetDir, '.aios-core', 'install-manifest.yaml'),
+        'version: "1.0.0"\nfiles:\n  - path: test.txt\n    size: 7'
+      );
+      await fs.writeFile(path.join(targetDir, '.aios-core', 'test.txt'), 'content');
+
+      const validator = new PostInstallValidator(targetDir, null, {
+        requireSignature: false,
+        verifyHashes: false, // Quick mode - hash not required
+      });
+
+      const report = await validator.validate();
+
+      // Should NOT have a schema violation for missing hash in quick mode
+      const schemaIssue = report.issues.find(
+        (i) => i.type === IssueType.SCHEMA_VIOLATION && i.message.includes('Missing hash')
+      );
+      expect(schemaIssue).toBeUndefined();
+      expect(report.stats.validFiles).toBe(1);
     });
   });
 
@@ -467,10 +537,19 @@ describe('Manifest Signature Module', () => {
   } = require('../../src/installer/manifest-signature');
 
   test('should parse valid minisign signature format', () => {
+    // Minisign signature blob must be at least 74 bytes:
+    // 2 bytes algorithm + 8 bytes key ID + 64 bytes Ed25519 signature = 74 bytes
+    // Base64 of 74 bytes = ceil(74/3)*4 = 100 characters
+    const sigBlob = Buffer.alloc(74);
+    sigBlob.write('Ed', 0, 2, 'ascii'); // Algorithm: 'Ed' for pure Ed25519
+    sigBlob.fill(0x41, 2, 10); // Key ID: 8 bytes of 'A'
+    sigBlob.fill(0x42, 10, 74); // Signature: 64 bytes of 'B'
+    const sigBase64 = sigBlob.toString('base64');
+
     const validSig = `untrusted comment: signature from minisign
-RWQBla1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/==
+${sigBase64}
 trusted comment: timestamp:1234567890
-QRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKL+/==`;
+QRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/==`;
 
     expect(() => parseMinisignSignature(validSig)).not.toThrow();
   });

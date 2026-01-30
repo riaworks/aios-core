@@ -681,6 +681,22 @@ class PostInstallValidator {
       }
     }
 
+    // SECURITY [H7]: Missing hash when hash verification is enabled is a schema violation
+    // This MUST be checked BEFORE the hash verification block to prevent bypass
+    if (this.options.verifyHashes && !entry.hash) {
+      result.issue = {
+        type: IssueType.SCHEMA_VIOLATION,
+        severity: getSeverityForCategory(category),
+        message: `Missing hash in manifest: ${relativePath}`,
+        details: 'Hash verification enabled but no hash provided in manifest',
+        category,
+        remediation: 'Update manifest with file hashes or disable hash verification',
+        relativePath,
+      };
+      this.stats.corruptedFiles++;
+      return result;
+    }
+
     // Verify hash (full validation)
     if (this.options.verifyHashes && entry.hash) {
       try {
