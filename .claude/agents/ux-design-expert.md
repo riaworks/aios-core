@@ -1,5 +1,5 @@
 ---
-name: aios-ux
+name: ux-design-expert
 description: |
   AIOS UX Design Expert autônomo. Frontend architecture, UI/UX design,
   wireframes, design system, accessibility, component design. 5 fases completas.

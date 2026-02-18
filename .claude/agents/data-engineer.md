@@ -1,5 +1,5 @@
 ---
-name: aios-data-engineer
+name: data-engineer
 description: |
   AIOS Data Engineer autônomo. Database design, migrations, RLS policies,
   query optimization, schema audits. Usa task files reais do AIOS.

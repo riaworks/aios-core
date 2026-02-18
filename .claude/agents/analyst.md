@@ -1,5 +1,5 @@
 ---
-name: aios-analyst
+name: analyst
 description: |
   AIOS Analyst autônomo. Market research, competitive analysis,
   brainstorming facilitation, ROI calculations, deep research. Usa task files reais do AIOS.

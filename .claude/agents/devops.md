@@ -1,5 +1,5 @@
 ---
-name: aios-devops
+name: devops
 description: |
   AIOS DevOps autônomo. Git operations, CI/CD, PR automation,
   pre-push quality gates, version management, MCP management. Usa task files reais do AIOS.

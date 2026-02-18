@@ -1,5 +1,5 @@
 ---
-name: aios-architect
+name: architect
 description: |
   AIOS Architect autônomo. Análise de impacto, design de arquitetura,
   validação de PRD, research. Usa task files reais do AIOS.

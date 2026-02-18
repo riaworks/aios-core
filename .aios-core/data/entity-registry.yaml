@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-02-17T23:43:47.881Z'
-  entityCount: 509
+  lastUpdated: '2026-02-18T18:21:36.073Z'
+  entityCount: 510
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -3742,8 +3742,8 @@ entities:
         score: 0.8
         constraints: []
         extensionPoints: []
-      checksum: sha256:8d2a0fc8d8d03d67d40045a706450a6af3870b0f9765b8ae225f2934455c7c86
-      lastVerified: '2026-02-08T13:33:24.261Z'
+      checksum: sha256:3d4039583e705b85dfac72308c132f6dd5fd76703763f8434b6619bbc4d02dc1
+      lastVerified: '2026-02-18T18:21:36.072Z'
     context-loading:
       path: .aios-core/development/tasks/blocks/context-loading.md
       type: task
@@ -4872,8 +4872,8 @@ entities:
         score: 0.7
         constraints: []
         extensionPoints: []
-      checksum: sha256:9cf5082fbcec95984127fdece65ce9b3e9b8e091510175535086714f290d9590
-      lastVerified: '2026-02-08T13:33:24.283Z'
+      checksum: sha256:78ec4d856971e3750ae51bb8bed92299240936b4b572c3ab34daa684fcde69c2
+      lastVerified: '2026-02-18T18:21:36.071Z'
     approval-workflow:
       path: .aios-core/development/scripts/approval-workflow.js
       type: script
@@ -7128,8 +7128,8 @@ entities:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:4a54fec3a3338431d1d9634ebf06f3983d06903570c45d67d0ac15d25c95eb05
-      lastVerified: '2026-02-16T02:23:49.802Z'
+      checksum: sha256:301e983974038e590c66ba9e3d60db2d9b27950b296483776e03cfbb09d234af
+      lastVerified: '2026-02-18T18:21:36.068Z'
     subagent-prompt-builder:
       path: .aios-core/core/orchestration/subagent-prompt-builder.js
       type: module
@@ -8866,6 +8866,23 @@ entities:
         extensionPoints: []
       checksum: sha256:2523ce93f863a28f798d992c4f2fab041c91a09413b3186fd290e6035b391587
       lastVerified: '2026-02-16T01:21:26.584Z'
+    quality-gate-config:
+      path: .aios-core/core/quality-gates/quality-gate-config.yaml
+      type: module
+      purpose: Quality Gate Configuration
+      keywords:
+        - quality
+        - gate
+        - config
+        - configuration
+      usedBy: []
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:7e64f312cd7fb91e9b2177137d7fad6a1dbf639252869666452affffc534cec1
+      lastVerified: '2026-02-18T18:21:36.070Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md
