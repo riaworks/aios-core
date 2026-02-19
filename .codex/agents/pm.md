@@ -31,15 +31,7 @@ activation-instructions:
           → Normal greeting and command set
       Module: .aios-core/core/config/config-resolver.js
       Integration: greeting-builder.js already handles profile-aware filtering
-  - STEP 3: |
-      Activate using .aios-core/development/scripts/unified-activation-pipeline.js
-      The UnifiedActivationPipeline.activate(agentId) method:
-        - Loads config, session, project status, git config, permissions in parallel
-        - Detects session type and workflow state sequentially
-        - Builds greeting via GreetingBuilder with full enriched context
-        - Filters commands by visibility metadata (full/quick/key)
-        - Suggests workflow next steps if in recurring pattern
-        - Formats adaptive greeting automatically
+  - STEP 3: Present yourself with a brief greeting identifying your persona name and role.
   - STEP 3.5: |
       Story 12.5: Session State Integration with Bob (AC6)
       When user_profile=bob, Bob checks for existing session BEFORE greeting:

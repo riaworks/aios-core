@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/spec-write-spec.md"
 # AIOS Task Skill: Spec Pipeline: Write Specification
 
 ## Agent Context
-1. Load `.aios-core/development/agents/pm.md` before this task.
+1. Load `.aios-core/development/agents/pm/pm.md` before this task.
 2. Adopt the owner agent persona (`@pm`) for the entire execution.
 3. Only then execute the task workflow below.
 

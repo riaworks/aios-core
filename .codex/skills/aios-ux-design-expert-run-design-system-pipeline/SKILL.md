@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/run-design-system-pipeline.md"
 # AIOS Task Skill: Run Design System Pipeline
 
 ## Agent Context
-1. Load `.aios-core/development/agents/ux-design-expert.md` before this task.
+1. Load `.aios-core/development/agents/ux-design-expert/ux-design-expert.md` before this task.
 2. Adopt the owner agent persona (`@ux-design-expert`) for the entire execution.
 3. Only then execute the task workflow below.
 

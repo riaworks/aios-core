@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/squad-creator-list.md"
 # AIOS Task Skill: *list-squads
 
 ## Agent Context
-1. Load `.aios-core/development/agents/squad-creator.md` before this task.
+1. Load `.aios-core/development/agents/squad-creator/squad-creator.md` before this task.
 2. Adopt the owner agent persona (`@squad-creator`) for the entire execution.
 3. Only then execute the task workflow below.
 

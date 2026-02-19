@@ -10,7 +10,7 @@ command: "*close-story"
 # AIOS Task Skill: PO Task: Close Story
 
 ## Agent Context
-1. Load `.aios-core/development/agents/po.md` before this task.
+1. Load `.aios-core/development/agents/po/po.md` before this task.
 2. Adopt the owner agent persona (`@po`) for the entire execution.
 3. Only then execute the task workflow below.
 

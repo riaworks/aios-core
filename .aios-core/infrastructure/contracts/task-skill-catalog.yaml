@@ -57,3 +57,9 @@ allowlist:
   - task_id: cleanup-worktrees
     agent: devops
     reason: "Batch cleanup workflow for stale branches"
+  - task_id: github-devops-pre-push-quality-gate
+    agent: devops
+    reason: "Pre-push quality gate - lint, test, typecheck"
+  - task_id: dev-develop-story
+    agent: dev
+    reason: "Core story implementation workflow"

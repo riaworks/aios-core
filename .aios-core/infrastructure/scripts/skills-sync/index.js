@@ -50,7 +50,8 @@ function buildAgentSkillPlan(agentSpecs, skillsDir) {
     .sort(compareBySkillId);
 }
 
-function buildTaskSkillPlan(taskSpecs, skillsDir) {
+function buildTaskSkillPlan(taskSpecs, skillsDir, contentBuilder) {
+  const builder = contentBuilder || buildTaskSkillContent;
   return (taskSpecs || [])
     .map((taskSpec) => {
       const skillId = getTaskSkillId(taskSpec.id, taskSpec.agent);
@@ -61,7 +62,7 @@ function buildTaskSkillPlan(taskSpecs, skillsDir) {
         skillId,
         targetDir,
         targetFile: path.join(targetDir, 'SKILL.md'),
-        content: buildTaskSkillContent(taskSpec),
+        content: builder(taskSpec),
       };
     })
     .sort(compareBySkillId);

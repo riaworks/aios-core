@@ -293,6 +293,39 @@ Durante a criacao do sistema de memoria, foram avaliados patterns de frameworks 
 
 ---
 
+## 3.2 Arquitetura 3-Layer de Ativacao
+
+O AIOS suporta 3 modos de ativacao para cada agente, cada um adequado a um caso de uso diferente:
+
+| Layer | Artefato | Localizacao | Invocacao | Comportamento |
+|-------|----------|-------------|-----------|---------------|
+| **1: Agent Skill** | `SKILL.md` | `.claude/skills/aios-{id}/` | `/aios-devops` | Interativo, persona na conversa principal |
+| **1b: Command** | `{id}.md` | `.claude/commands/AIOS/agents/` | `/AIOS:agents:devops` | Interativo via command path |
+| **2: Agent** | `{id}.md` | `.claude/agents/` | `@devops` / Task tool | Autonomo, contexto fechado, skills pre-carregados |
+| **3: Task Skill** | `SKILL.md` | `.claude/skills/aios-{agent}-{task}/` | `/aios-devops-push` | Fork autonomo, missao unica, retorna resultado |
+
+### Layer 1: Sessao Interativa (Agent Skill / Command)
+
+O usuario ativa o agente na conversa principal. A persona e injetada no contexto atual, permitindo enviar comandos de follow-up como `*push`, `*develop`, `*help`.
+
+- **Agent Skill** (`.claude/skills/aios-devops/SKILL.md`): Activation Protocol com 6 steps (source, MEMORY.md, agent-context.md, adopt persona, greeting, persist).
+- **Command** (`.claude/commands/AIOS/agents/devops.md`): Thin wrapper com Activation Flow identico.
+
+### Layer 2: Subagent Autonomo
+
+O usuario ativa o agente via `@devops` ou Task tool. Um subagent e criado com contexto isolado. O agente executa e retorna resultado. O usuario **nao pode** enviar comandos de follow-up.
+
+- Frontmatter inclui `skills: [aios-devops]` para pre-carregar o Agent Skill no subagent.
+
+### Layer 3: Task Fork (context: fork)
+
+Um task skill com `context: fork` e `agent: devops` no frontmatter. Cria um subagent autonomo com a persona do agente dono, executa uma task especifica, e retorna o resultado.
+
+- Usado para tasks que precisam ser executadas de forma isolada.
+- O frontmatter `agent:` determina qual agent definition usar no fork.
+
+---
+
 ## 4. Fluxo de Ativacao de um Agente
 
 ### 4.1 No Claude Code
@@ -677,9 +710,59 @@ npm run validate:parity
 
 ---
 
-*Agent System Architecture v1.3*
-*Atualizado: 2026-02-18*
+## 10. Defense in Depth: Cross-Mode Context Loading (AGF-1)
+
+### Problema
+
+Teste A/B controlado revelou que **team teammates** (spawned via Task tool com `team_name`) nao carregam `.claude/agents/*.md` como system prompt (Claude Code Issue #24316). Todos spawnam como agentes genericos (`general-purpose`), resultando em baixa fidelidade de persona.
+
+### Estrategia de 4 Camadas
+
+Para garantir contexto consistente independente do modo de invocacao, o AIOS implementa 4 camadas de defesa:
+
+| Layer | Mecanismo | Alvo | Funciona em Teammates? |
+|-------|-----------|------|------------------------|
+| **L1** | `skills:` no agent frontmatter | Subagents | Nao |
+| **L2** | `.claude/rules/` sem path filter | Todos os modos | **Sim** (unico universal) |
+| **L3** | `required-context` no task skill body | Task forks | Sim (instrucoes no corpo) |
+| **L4** | Hooks (futuro) | Todos | Sim (deterministico) |
+
+### Mecanismos por Modo de Invocacao
+
+| Mecanismo | Skill Interativo | Subagent (@agent) | Task Fork | Team Teammate |
+|-----------|-----------------|-------------------|-----------|---------------|
+| `.claude/agents/*.md` | N/A | System prompt | N/A | **Ignorado** |
+| `skills:` pre-injection | N/A | Carrega | N/A | Nao herda |
+| `.claude/rules/` | Carrega | Carrega | Carrega | **Carrega** |
+| Task skill body | N/A | N/A | Carrega | Carrega |
+| CLAUDE.md | Carrega | Carrega | Carrega | Carrega |
+
+### Artefatos Implementados
+
+1. **`project-context` skill** (`.claude/skills/project-context/SKILL.md`): Skill com `@file` refs para `backlog.md` e `constitution.md`. Incluida no `skills:` de todos os 12 agents via IDE sync.
+
+2. **`agent-context-loading.md` rule** (`.claude/rules/agent-context-loading.md`): Regra universal (sem `paths:` filter) que instrui o carregamento de agent definition, MEMORY.md e agent-context.md. Inclui qualifier defensivo ("ONLY apply when operating as an AIOS agent") e instrucoes de identity resolution via `owner:` field para teammates.
+
+3. **`required-context` em task skills**: Campo YAML no frontmatter + secao "Required Context Loading" no corpo de todos os Claude task skills gerados por `buildClaudeTaskSkillContent()`.
+
+### Identity Resolution para Teammates
+
+Quando spawned como teammate (general-purpose), a regra `.claude/rules/agent-context-loading.md` instrui:
+1. Verificar o campo `owner:` ou `agent:` no frontmatter do task skill
+2. Usar esse valor como `{id}` para resolver a identidade do agente
+3. Carregar os 3 arquivos obrigatorios (definition, MEMORY.md, agent-context.md)
+
+### Referencia
+
+- Claude Code Issue #24316: Custom agent definitions nao sao usados como system prompt de teammates
+- Story AGF-1: Defense-in-Depth Context Loading
+
+---
+
+*Agent System Architecture v1.4*
+*Atualizado: 2026-02-19*
 *Changelog:*
+*v1.4 - Adicionado secao 10 "Defense in Depth" (Story AGF-1): 4-layer context loading strategy, mecanismos por modo de invocacao, identity resolution para teammates*
 *v1.3 - Adicionado cadeia de configuracao (core-config → getAgentConfig → agent-context), backward compatibility com devLoadAlwaysFiles, info de installer/templates, corrigido numeracao duplicada secao 5.3→5.5*
 *v1.2 - Adicionado agent-context.md a estrutura de cada agente, nova secao 4.4 Agent Context & Always-Load Files com tabela dos 12 agentes, atualizado fluxo de ativacao (removido generate-greeting.js, adicionado agent-context.md e always-load steps)*
 *v1.1 - Adicionado MEMORY.md para todos os 12 agentes, secao 3.1 com decisoes arquiteturais sobre memory/persona, expandido memory links para mostrar todos os junctions*

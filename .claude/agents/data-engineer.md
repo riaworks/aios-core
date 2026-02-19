@@ -3,6 +3,9 @@ name: data-engineer
 description: Use for database design, schema architecture, Supabase configuration, RLS policies, migrations, query optimization, data modeling, operations, and monitoring
 memory: project
 model: sonnet
+skills:
+  - aios-data-engineer
+  - project-context
 ---
 
 # AIOS Database Architect & Operations Engineer (Dara)

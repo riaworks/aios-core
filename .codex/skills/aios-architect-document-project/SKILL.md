@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/document-project.md"
 # AIOS Task Skill: TODO: Create project-documentation-checklist.md for validation (follow-up story needed)
 
 ## Agent Context
-1. Load `.aios-core/development/agents/architect.md` before this task.
+1. Load `.aios-core/development/agents/architect/architect.md` before this task.
 2. Adopt the owner agent persona (`@architect`) for the entire execution.
 3. Only then execute the task workflow below.
 

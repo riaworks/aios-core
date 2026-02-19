@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/qa-false-positive-detection.md"
 # AIOS Task Skill: False Positive Detection Task
 
 ## Agent Context
-1. Load `.aios-core/development/agents/aios-master.md` before this task.
+1. Load `.aios-core/development/agents/aios-master/aios-master.md` before this task.
 2. Adopt the owner agent persona (`@master`) for the entire execution.
 3. Only then execute the task workflow below.
 

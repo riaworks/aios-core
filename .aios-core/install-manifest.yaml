@@ -8,9 +8,9 @@
 # - File types for categorization
 #
 version: 4.2.13
-generated_at: "2026-02-19T00:18:59.319Z"
+generated_at: "2026-02-19T15:54:21.017Z"
 generator: scripts/generate-install-manifest.js
-file_count: 1048
+file_count: 1049
 files:
   - path: cli/commands/config/index.js
     hash: sha256:ebcad2ce3807eda29dcddff76d7a95ddc9b7fa160df21fd608f94b802237e862
@@ -177,9 +177,9 @@ files:
     type: cli
     size: 5907
   - path: core-config.yaml
-    hash: sha256:937fcf8487ebf11e332852c0a86617b82dc8b1d6295f6bb87d9574bf88ec599b
+    hash: sha256:de82c7221ee6599f932811b574b4e4c65d96c6bbb2cd93d413ac0ec21e7e0579
     type: config
-    size: 11279
+    size: 11398
   - path: core/code-intel/code-intel-client.js
     hash: sha256:bd88497c8c8f312e95f746121e627c088e93d27af093d411f0521712bd17ba94
     type: core
@@ -1045,9 +1045,9 @@ files:
     type: data
     size: 34251
   - path: data/entity-registry.yaml
-    hash: sha256:9b09c1f07c10cff1cb00cec5c886e86d0576d23478ecb27d164493f3f679ea28
+    hash: sha256:a12858e90a61badeceb9ff9bfdeed0bcff01d800721729354f0db88d75123de2
     type: data
-    size: 292402
+    size: 293515
   - path: data/learned-patterns.yaml
     hash: sha256:24ac0b160615583a0ff783d3da8af80b7f94191575d6db2054ec8e10a3f945dc
     type: data
@@ -2613,9 +2613,9 @@ files:
     type: infrastructure
     size: 1294
   - path: infrastructure/contracts/task-skill-catalog.yaml
-    hash: sha256:5432a839c4d42b05b4c851321101c80ee14d988a39f8e0be84afe0d5896a7840
+    hash: sha256:2a3f8db264db2a7b6c242bea0c1b4fd72c90b7bf275307b6942a94543bbe7724
     type: infrastructure
-    size: 1725
+    size: 1947
   - path: infrastructure/index.js
     hash: sha256:8e05caec57188938d6f348444ad3abce2c06b53bdb46993fb2e8ff81c27fca4c
     type: infrastructure
@@ -2873,9 +2873,13 @@ files:
     type: script
     size: 9812
   - path: infrastructure/scripts/ide-sync/claude-agents.js
-    hash: sha256:d564cbf770e875f61246de9b34390daa768187926aaaf7e80a8a640f93a6a968
+    hash: sha256:e118a8d191479c7fe347fa9d6f2ee2528f3943d8411c6d4332db6bf596271f64
     type: script
-    size: 7596
+    size: 7737
+  - path: infrastructure/scripts/ide-sync/claude-commands.js
+    hash: sha256:182948034042d8e60f895b1931fd982388a95e1d298cb02a8ddbc308a7219566
+    type: script
+    size: 1328
   - path: infrastructure/scripts/ide-sync/claude-skills.js
     hash: sha256:02294dfcff154de0fe72877c32e9c451c2b0916861fe0c2e57111dd973daf6aa
     type: script
@@ -2893,9 +2897,9 @@ files:
     type: script
     size: 2760
   - path: infrastructure/scripts/ide-sync/index.js
-    hash: sha256:70e7b45ab0325e87119831bc3bcf201147f64aefcda691a3b3910d1a44d99112
+    hash: sha256:4bd74cdab71c54f3d9b783a1a64abefe3644a6d2b7e45a3c6dac001f4d14950e
     type: script
-    size: 18480
+    size: 18748
   - path: infrastructure/scripts/ide-sync/README.md
     hash: sha256:0505f52788f24fe16520aa045bb3fe85ba322217620b52b5a05a82e44fd3e31b
     type: script
@@ -3077,17 +3081,17 @@ files:
     type: script
     size: 2410
   - path: infrastructure/scripts/skills-sync/index.js
-    hash: sha256:78ffbcd8e1d02537192100184c2b7db9a1fd205556e4e63d6a8795112a10ba41
+    hash: sha256:e7e7e831e96d79b61fa93aa92838b98655b7e4214951b9b41eaf4727d1692a30
     type: script
-    size: 2474
+    size: 2535
   - path: infrastructure/scripts/skills-sync/renderers/agent-skill.js
-    hash: sha256:ca3e6f2bf943ea7f9a880eac65f0eff18a046c4a92ea97ac2c4d38588a185f7b
+    hash: sha256:b5a062aae9a7f76ac23156e3a32577b5aa742ac133e9efcf433912fe4ff2efc7
     type: script
-    size: 2301
+    size: 2557
   - path: infrastructure/scripts/skills-sync/renderers/task-skill.js
-    hash: sha256:ac068ee7f2072c5db0d622653ac55c91f931862b767c0f6cc7882ea368d1521a
+    hash: sha256:3c85ba3dabe8f352d058bad2ed1c94b66aa291de91419d31aee669b40b4456a8
     type: script
-    size: 3561
+    size: 6197
   - path: infrastructure/scripts/spot-check-validator.js
     hash: sha256:4bf2d20ded322312aef98291d2a23913da565e1622bc97366c476793c6792c81
     type: script
@@ -3109,9 +3113,9 @@ files:
     type: script
     size: 22394
   - path: infrastructure/scripts/task-skills-sync/index.js
-    hash: sha256:f0aa0edf4fa7acb48af7841c131c0f874f666236c8aa61aa57a5cc0278021421
+    hash: sha256:d13672254078b6caaa693505a379ecf2e197f49aae6e9acd409741667cb7a254
     type: script
-    size: 15411
+    size: 15551
   - path: infrastructure/scripts/task-skills-sync/validate.js
     hash: sha256:542a76d0534fdb264a068f5856d4ef2bd3e19647181b044c3c56da5eea5c445d
     type: script

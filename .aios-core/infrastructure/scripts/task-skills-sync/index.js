@@ -8,7 +8,7 @@ const yaml = require('js-yaml');
 const { parseAllAgents } = require('../ide-sync/agent-parser');
 const { parseAllTasks } = require('../ide-sync/task-parser');
 const { isParsableAgent } = require('../skills-sync/contracts');
-const { getTaskSkillId, normalizeAgentSlug } = require('../skills-sync/renderers/task-skill');
+const { getTaskSkillId, normalizeAgentSlug, buildClaudeTaskSkillContent } = require('../skills-sync/renderers/task-skill');
 const {
   buildTaskSpecsFromParsedTasks,
   buildTaskSkillPlan,
@@ -470,7 +470,8 @@ function syncTaskSkills(options = {}) {
 
   for (const target of targets) {
     const selected = collectSelectedTaskSpecs(entries, taskSpecsById, target.name);
-    const plan = buildTaskSkillPlan(selected.specs, target.absPath);
+    const contentBuilder = target.name === 'claude' ? buildClaudeTaskSkillContent : undefined;
+    const plan = buildTaskSkillPlan(selected.specs, target.absPath, contentBuilder);
     writeSkillPlan(plan, resolved);
 
     const pruned = resolved.prune

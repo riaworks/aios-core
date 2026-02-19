@@ -103,6 +103,73 @@ ${commandHint ? `## Canonical Command\n- \`${commandHint}\`\n\n` : ''}## Guardra
 `;
 }
 
+function getRequiredContextPaths(agentSlug) {
+  const agentName = agentSlug === 'master' ? 'aios-master' : agentSlug;
+  return [
+    `.aios-core/development/agents/${agentName}/${agentName}.md`,
+    `.aios-core/development/agents/${agentName}/MEMORY.md`,
+    `.aios-core/development/agents/${agentName}/agent-context.md`,
+  ];
+}
+
+function buildClaudeTaskSkillContent(taskSpec) {
+  const skillId = getTaskSkillId(taskSpec.id, taskSpec.agent);
+  const title = taskSpec.title || taskSpec.id;
+  const summary = sanitizeDescription(trimText(
+    taskSpec.summary || `Reusable AIOS task workflow skill for ${taskSpec.id}.`,
+    180,
+  ));
+  const description = summary || `Execute AIOS task workflow ${taskSpec.id}.`;
+  const commandHint = String(taskSpec.command || '').trim();
+  const normalizedAgent = normalizeAgentSlug(taskSpec.agent);
+  const agentName = normalizedAgent === 'master' ? 'aios-master' : normalizedAgent;
+  const interactionNote = taskSpec.elicit
+    ? '- This task requires user interaction points (`elicit=true`). Do not skip them.'
+    : '- Execute non-interactive flow unless blocked by missing context.';
+  const requiredContext = getRequiredContextPaths(normalizedAgent);
+
+  return `---
+name: ${skillId}
+description: ${toYamlString(description)}
+context: fork
+agent: ${agentName}
+owner: ${toYamlString(normalizedAgent)}
+intent: "aios-task-workflow"
+source: ${toYamlString(`.aios-core/development/tasks/${taskSpec.filename}`)}
+required-context:
+${requiredContext.map((p) => `  - "${p}"`).join('\n')}
+${commandHint ? `command: ${toYamlString(commandHint)}\n` : ''}---
+
+# AIOS Task: ${title}
+
+## Required Context Loading
+Before execution, read these files:
+${requiredContext.map((p) => `- \`${p}\``).join('\n')}
+
+## Mission
+Execute the ${title} task autonomously as @${normalizedAgent} and return the result.
+
+## Source of Truth
+- Load \`.aios-core/development/tasks/${taskSpec.filename}\`.
+- Follow the task workflow exactly as written.
+
+## Execution Protocol
+1. Read the task fully before execution.
+2. Respect pre-conditions, post-conditions, and acceptance criteria.
+3. Use only declared tools/scripts and canonical project paths.
+4. Record assumptions explicitly when context is missing.
+5. Report results back to the caller upon completion.
+
+## Interaction Rules
+${interactionNote}
+
+${commandHint ? `## Canonical Command\n- \`${commandHint}\`\n\n` : ''}## Guardrails
+- Do not invent requirements outside the task definition.
+- Keep outputs aligned with the active story/epic scope.
+- Escalate when constitutional or quality gates would be violated.
+`;
+}
+
 module.exports = {
   normalizeTaskId,
   normalizeAgentSlug,
@@ -110,5 +177,7 @@ module.exports = {
   getTaskSkillId,
   sanitizeDescription,
   toYamlString,
+  getRequiredContextPaths,
   buildTaskSkillContent,
+  buildClaudeTaskSkillContent,
 };

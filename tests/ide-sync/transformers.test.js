@@ -6,6 +6,7 @@
 const claudeCode = require('../../.aios-core/infrastructure/scripts/ide-sync/transformers/claude-code');
 const claudeNative = require('../../.aios-core/infrastructure/scripts/ide-sync/claude-agents');
 const claudeSkills = require('../../.aios-core/infrastructure/scripts/ide-sync/claude-skills');
+const claudeCommands = require('../../.aios-core/infrastructure/scripts/ide-sync/claude-commands');
 const geminiSkills = require('../../.aios-core/infrastructure/scripts/ide-sync/gemini-skills');
 const githubCopilotNative = require('../../.aios-core/infrastructure/scripts/ide-sync/github-copilot-agents');
 const cursor = require('../../.aios-core/infrastructure/scripts/ide-sync/transformers/cursor');
@@ -183,6 +184,54 @@ describe('IDE Transformers', () => {
       const result = claudeNative.transform(sampleAgent);
       expect(result).not.toContain('.claude/commands/AIOS/agents/dev.md');
     });
+
+    it('should include skills array in frontmatter', () => {
+      const result = claudeNative.transform(sampleAgent);
+      expect(result).toContain('skills:');
+      expect(result).toContain('- aios-dev');
+    });
+
+    it('should include project-context in skills array (AGF-1)', () => {
+      const result = claudeNative.transform(sampleAgent);
+      expect(result).toContain('- project-context');
+    });
+  });
+
+  describe('claude commands transformer', () => {
+    it('should generate interactive session command', () => {
+      const result = claudeCommands.transform(sampleAgent);
+      expect(result).toContain('Interactive Session');
+      expect(result).toContain('Activation Flow');
+    });
+
+    it('should reference source agent definition', () => {
+      const result = claudeCommands.transform(sampleAgent);
+      expect(result).toContain('.aios-core/development/agents/dev/dev.md');
+    });
+
+    it('should reference MEMORY.md and agent-context.md', () => {
+      const result = claudeCommands.transform(sampleAgent);
+      expect(result).toContain('MEMORY.md');
+      expect(result).toContain('agent-context.md');
+    });
+
+    it('should include HALT instruction for interactivity', () => {
+      const result = claudeCommands.transform(sampleAgent);
+      expect(result).toContain('HALT and await user input');
+    });
+
+    it('should return correct filename', () => {
+      expect(claudeCommands.getFilename(sampleAgent)).toBe('dev.md');
+    });
+
+    it('should preserve aios-master id in filename', () => {
+      const masterAgent = { ...sampleAgent, id: 'aios-master', filename: 'aios-master/aios-master.md' };
+      expect(claudeCommands.getFilename(masterAgent)).toBe('aios-master.md');
+    });
+
+    it('should have correct format identifier', () => {
+      expect(claudeCommands.format).toBe('claude-command-wrapper');
+    });
   });
 
   describe('github copilot native agent transformer', () => {
@@ -226,6 +275,7 @@ describe('IDE Transformers', () => {
       claudeCode,
       claudeNative,
       claudeSkills,
+      claudeCommands,
       geminiSkills,
       githubCopilotNative,
       cursor,

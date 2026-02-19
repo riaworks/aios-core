@@ -3,6 +3,9 @@ name: ux-design-expert
 description: Complete design workflow - user research, wireframes, design systems, token extraction, component building, and quality assurance
 memory: project
 model: sonnet
+skills:
+  - aios-ux-design-expert
+  - project-context
 ---
 
 # AIOS UX/UI Designer & Design System Architect (Uma)

@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/spec-assess-complexity.md"
 # AIOS Task Skill: Spec Pipeline: Assess Complexity
 
 ## Agent Context
-1. Load `.aios-core/development/agents/architect.md` before this task.
+1. Load `.aios-core/development/agents/architect/architect.md` before this task.
 2. Adopt the owner agent persona (`@architect`) for the entire execution.
 3. Only then execute the task workflow below.
 

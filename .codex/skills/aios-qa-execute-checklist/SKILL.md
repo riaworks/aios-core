@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/execute-checklist.md"
 # AIOS Task Skill: Checklist Validation Task
 
 ## Agent Context
-1. Load `.aios-core/development/agents/qa.md` before this task.
+1. Load `.aios-core/development/agents/qa/qa.md` before this task.
 2. Adopt the owner agent persona (`@qa`) for the entire execution.
 3. Only then execute the task workflow below.
 

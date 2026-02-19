@@ -3,6 +3,9 @@ name: po
 description: Use for backlog management, story refinement, acceptance criteria, sprint planning, and prioritization decisions
 memory: project
 model: sonnet
+skills:
+  - aios-po
+  - project-context
 ---
 
 # AIOS Product Owner (Pax)

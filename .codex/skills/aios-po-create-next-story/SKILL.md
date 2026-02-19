@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/create-next-story.md"
 # AIOS Task Skill: Create Next Story Task
 
 ## Agent Context
-1. Load `.aios-core/development/agents/po.md` before this task.
+1. Load `.aios-core/development/agents/po/po.md` before this task.
 2. Adopt the owner agent persona (`@po`) for the entire execution.
 3. Only then execute the task workflow below.
 

@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/generate-ai-frontend-prompt.md"
 # AIOS Task Skill: No checklists needed - this task generates prompts, validation is built into prompt generation methodology
 
 ## Agent Context
-1. Load `.aios-core/development/agents/aios-master.md` before this task.
+1. Load `.aios-core/development/agents/aios-master/aios-master.md` before this task.
 2. Adopt the owner agent persona (`@master`) for the entire execution.
 3. Only then execute the task workflow below.
 

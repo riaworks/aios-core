@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 const { normalizeCommands, getVisibleCommands } = require('./agent-parser');
+const { getAgentSkillId } = require('../skills-sync/renderers/agent-skill');
 
 /**
  * All agents use external agent-context.md file strategy.
@@ -67,6 +68,7 @@ function buildFrontmatter(agentData) {
     description,
     memory: 'project',
     model: 'sonnet',
+    skills: [getAgentSkillId(agentData.id), 'project-context'],
   };
 }
 

@@ -1,5 +1,7 @@
 'use strict';
 
+const path = require('path');
+
 function trimText(text, max = 220) {
   const normalized = String(text || '').replace(/\s+/g, ' ').trim();
   if (normalized.length <= max) return normalized;
@@ -37,6 +39,7 @@ function buildAgentSkillContent(agentSpec) {
   const skillName = getAgentSkillId(agentSpec.id);
   const description = trimText(`${title} (${name}). ${whenToUse}`, 180);
   const starterCommands = buildStarterCommands(agentSpec.commands || []);
+  const agentDir = path.dirname(`.aios-core/development/agents/${agentSpec.filename}`);
 
   return `---
 name: ${skillName}
@@ -49,10 +52,12 @@ description: ${description}
 ${whenToUse}
 
 ## Activation Protocol
-1. Load \`.aios-core/development/agents/${agentSpec.filename}\` as source of truth (fallback: \`.codex/agents/${agentSpec.filename}\`).
-2. Adopt this agent persona and command system.
-3. Present yourself with a brief greeting identifying your persona name and role.
-4. Stay in this persona until the user asks to switch or exit.
+1. Read the COMPLETE source agent definition: \`.aios-core/development/agents/${agentSpec.filename}\`
+2. Read the agent memory file: \`${agentDir}/MEMORY.md\`
+3. Read the agent context (authority, rules, config): \`${agentDir}/agent-context.md\`
+4. Adopt this agent persona, commands, and constraints exactly as defined.
+5. Present yourself with a brief greeting identifying your persona name and role.
+6. Stay in this persona until the user asks to switch or exit.
 
 ## Starter Commands
 ${starterCommands || '- `*help` - List available commands'}

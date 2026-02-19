@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-02-18T18:21:36.073Z'
-  entityCount: 510
+  lastUpdated: '2026-02-19T00:19:00.056Z'
+  entityCount: 512
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -4761,8 +4761,8 @@ entities:
         score: 0.5
         constraints: []
         extensionPoints: []
-      checksum: sha256:c0621a46f2a37ec8c8cfe6b6b240eaf207738693c80199ead7c338d4223d15c2
-      lastVerified: '2026-02-16T01:12:06.470Z'
+      checksum: sha256:420b7339878c573118684cd60bfde5caadeaf906c15b1536f958793b159a14d4
+      lastVerified: '2026-02-19T00:19:00.055Z'
     codex-rules:
       path: .aios-core/product/templates/ide-rules/codex-rules.md
       type: template
@@ -4781,8 +4781,8 @@ entities:
         score: 0.5
         constraints: []
         extensionPoints: []
-      checksum: sha256:e8345404f17977a268b917a4ff86e4f10f80174a6bb572865e5413c8f7dd217a
-      lastVerified: '2026-02-15T17:43:13.184Z'
+      checksum: sha256:02fc730ca31ddc1c83cc518b1d25ab4cf21ec6a0b955483e8b19c50d9af496fd
+      lastVerified: '2026-02-19T00:19:00.055Z'
     brownfield-risk-report-tmpl:
       path: .aios-core/product/templates/brownfield-risk-report-tmpl.yaml
       type: template
@@ -4872,8 +4872,8 @@ entities:
         score: 0.7
         constraints: []
         extensionPoints: []
-      checksum: sha256:78ec4d856971e3750ae51bb8bed92299240936b4b572c3ab34daa684fcde69c2
-      lastVerified: '2026-02-18T18:21:36.071Z'
+      checksum: sha256:ca7ef46b7691f326f9c71485609aa29aed9f8d11ed044e6c848736a82bf556b5
+      lastVerified: '2026-02-19T00:19:00.054Z'
     approval-workflow:
       path: .aios-core/development/scripts/approval-workflow.js
       type: script
@@ -5710,8 +5710,8 @@ entities:
         score: 0.7
         constraints: []
         extensionPoints: []
-      checksum: sha256:57d23bfe52572c5543dfa09b769c5dc75471b47300b4ccbf5c81aa1e165510e9
-      lastVerified: '2026-02-08T13:33:24.304Z'
+      checksum: sha256:0f8d30a429e6344f104ca35f89115051e9abbff69c4e70b2b3d906effe137e03
+      lastVerified: '2026-02-19T00:19:00.055Z'
     version-tracker:
       path: .aios-core/development/scripts/version-tracker.js
       type: script
@@ -6646,8 +6646,8 @@ entities:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:94d25e22a261c09f719b52ad62979d0c013506866b07aca1b0e2623192b76428
-      lastVerified: '2026-02-08T13:33:24.336Z'
+      checksum: sha256:d93c27a31c64212401da6b541703fa498789ee074fd03159adcd0c85532caeb0
+      lastVerified: '2026-02-19T00:19:00.033Z'
     manifest-validator:
       path: .aios-core/core/manifest/manifest-validator.js
       type: module
@@ -8338,23 +8338,23 @@ entities:
     core-config:
       path: .aios-core/core-config.yaml
       type: module
-      purpose: Core MCPs - no API keys required
+      purpose: rules, project context, boundaries — NOT domain knowledge.
       keywords:
         - core
         - config
-        - memory
-        - intelligence
-        - system
-        - (epic
-        - mis)
+        - per-agent
+        - always-load
+        - files
+        - (loaded
+        - during
       usedBy: []
       dependencies: []
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:1cf249979578d6f8441c81aeb0695d59fd64f757e2b319bf08e944ab566b6f79
-      lastVerified: '2026-02-17T23:43:47.880Z'
+      checksum: sha256:937fcf8487ebf11e332852c0a86617b82dc8b1d6295f6bb87d9574bf88ec599b
+      lastVerified: '2026-02-19T00:19:00.028Z'
     active-modules.verify:
       path: .aios-core/core/memory/__tests__/active-modules.verify.js
       type: module
@@ -8648,7 +8648,7 @@ entities:
     hook-collector:
       path: .aios-core/core/synapse/diagnostics/collectors/hook-collector.js
       type: module
-      purpose: Entity at .aios-core/core/synapse/diagnostics/collectors/hook-collector.js
+      purpose: Entity at .aios-core\core\synapse\diagnostics\collectors\hook-collector.js
       keywords:
         - hook
         - collector
@@ -8659,8 +8659,8 @@ entities:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:9cd342cc0c2253296f931a977b20408370c1e1bebe02a22a757418d4d0630884
-      lastVerified: '2026-02-16T01:21:26.583Z'
+      checksum: sha256:cda6b16a725e2f8dbdd8f83373c871296c081ff1bb97bbf72352eae838094173
+      lastVerified: '2026-02-19T00:19:00.035Z'
     manifest-collector:
       path: .aios-core/core/synapse/diagnostics/collectors/manifest-collector.js
       type: module
@@ -8881,8 +8881,8 @@ entities:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:7e64f312cd7fb91e9b2177137d7fad6a1dbf639252869666452affffc534cec1
-      lastVerified: '2026-02-18T18:21:36.070Z'
+      checksum: sha256:d101ebe4887113731615162045a3f492732749892a3fe8b41d7a303f86361c6f
+      lastVerified: '2026-02-19T00:19:00.034Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master/aios-master.md
@@ -8898,8 +8898,8 @@ entities:
         score: 0.3
         constraints: []
         extensionPoints: []
-      checksum: sha256:092161d318ab523b8cd5c3dc8a2bd19accc23ab7fa731d5b4fa11c5afb8b5a08
-      lastVerified: '2026-02-16T19:52:18.846Z'
+      checksum: sha256:fa520e32189d8e92c21dddfae7ed06eaefdafa4d67603c7593c35f50f833051a
+      lastVerified: '2026-02-19T00:19:00.036Z'
     analyst:
       path: .aios-core/development/agents/analyst/analyst.md
       type: agent
@@ -8912,8 +8912,8 @@ entities:
         score: 0.3
         constraints: []
         extensionPoints: []
-      checksum: sha256:470384d9ee05d1373fe7519602f135179a88a35895252277823b35339dafd2a3
-      lastVerified: '2026-02-08T13:33:24.383Z'
+      checksum: sha256:56953485c0260418d9bae620f811ee8d25f8f408718c9ba6b440463de000f336
+      lastVerified: '2026-02-19T00:19:00.038Z'
     architect:
       path: .aios-core/development/agents/architect/architect.md
       type: agent
@@ -8926,8 +8926,8 @@ entities:
         score: 0.3
         constraints: []
         extensionPoints: []
-      checksum: sha256:624cc2a9e8a6cb1549321614927649714a867332272faaa5861f4378206f1c34
-      lastVerified: '2026-02-15T19:33:09.493Z'
+      checksum: sha256:344325b7c80eac7a95ef8dc50bc475f1a6e30512caee88250dd2692aec278f2f
+      lastVerified: '2026-02-19T00:19:00.039Z'
     data-engineer:
       path: .aios-core/development/agents/data-engineer/data-engineer.md
       type: agent
@@ -8942,8 +8942,8 @@ entities:
         score: 0.3
         constraints: []
         extensionPoints: []
-      checksum: sha256:4be2e5bff60e58d7444d39030edd1e8d34e326e6d1267ae84772871f3e76ec19
-      lastVerified: '2026-02-08T13:33:24.384Z'
+      checksum: sha256:c7b5aa7e63ebf4637acbd60d117c81d848c8e62f61e926234ba8f4c9f97732b2
+      lastVerified: '2026-02-19T00:19:00.041Z'
     dev:
       path: .aios-core/development/agents/dev/dev.md
       type: agent
@@ -8957,8 +8957,8 @@ entities:
         score: 0.3
         constraints: []
         extensionPoints: []
-      checksum: sha256:994d1015878d4deec3ee1b0f14cfa9ff6ffcf60ee1f83abe969daaa01b95b4db
-      lastVerified: '2026-02-08T13:33:24.385Z'
+      checksum: sha256:6312cb5be134f86196eb5abf6eebfa7a69850507fd324d619db1fffc88605ea4
+      lastVerified: '2026-02-19T00:19:00.043Z'
     devops:
       path: .aios-core/development/agents/devops/devops.md
       type: agent
@@ -8971,8 +8971,8 @@ entities:
         score: 0.3
         constraints: []
         extensionPoints: []
-      checksum: sha256:958dd617e0c3d4fd3419102df22e6c3f3acdbab30f1333e687ce6191e41113f8
-      lastVerified: '2026-02-15T19:33:09.494Z'
+      checksum: sha256:c02edeb0bd9121c1dab9620a3a08f661aa14d41de161020633097a0a260d0156
+      lastVerified: '2026-02-19T00:19:00.044Z'
     pm:
       path: .aios-core/development/agents/pm/pm.md
       type: agent
@@ -8987,8 +8987,8 @@ entities:
         score: 0.3
         constraints: []
         extensionPoints: []
-      checksum: sha256:e724b248d30c0e67e316e72d5d408c4c57b2da0bfe0cc014e48415531703e765
-      lastVerified: '2026-02-08T13:33:24.386Z'
+      checksum: sha256:53de9b76ae4a649ae8d54513eb06c0bd8f02a3238d026c8c14b2f6e18c4d7e9b
+      lastVerified: '2026-02-19T00:19:00.046Z'
     po:
       path: .aios-core/development/agents/po/po.md
       type: agent
@@ -9001,8 +9001,8 @@ entities:
         score: 0.3
         constraints: []
         extensionPoints: []
-      checksum: sha256:4b092282c4a6fab6cadb15c9a5792f851766525d152d18bc8d2f0c8d66366c7d
-      lastVerified: '2026-02-08T13:33:24.386Z'
+      checksum: sha256:14e88b20d112420d82edd1e3a0d6b911ec0824c527d93724c82506df93619874
+      lastVerified: '2026-02-19T00:19:00.047Z'
     qa:
       path: .aios-core/development/agents/qa/qa.md
       type: agent
@@ -9015,8 +9015,8 @@ entities:
         score: 0.3
         constraints: []
         extensionPoints: []
-      checksum: sha256:0f8fb4bce7c75852937bc822547ce74735b212c16761b2d58d95356708fd0a14
-      lastVerified: '2026-02-15T19:33:09.495Z'
+      checksum: sha256:4e0574dbf91e6c9c760e368ab12f61bf3309568b85a09578ca8a7b7b9047560b
+      lastVerified: '2026-02-19T00:19:00.048Z'
     sm:
       path: .aios-core/development/agents/sm/sm.md
       type: agent
@@ -9029,8 +9029,8 @@ entities:
         score: 0.3
         constraints: []
         extensionPoints: []
-      checksum: sha256:0f0a8171a68035594ef5dfc5f3e611e6a16198b3c3cc116b98c34d38ef2045ad
-      lastVerified: '2026-02-08T13:33:24.387Z'
+      checksum: sha256:c727b60e38611a8242f478187556f5c10096ac07fd5b74136868f63f6dec4cc0
+      lastVerified: '2026-02-19T00:19:00.050Z'
     squad-creator:
       path: .aios-core/development/agents/squad-creator/squad-creator.md
       type: agent
@@ -9045,8 +9045,8 @@ entities:
         score: 0.3
         constraints: []
         extensionPoints: []
-      checksum: sha256:396afae845d9d53f510e64360dc814954f181d8832c93593e96ede0f84f41d41
-      lastVerified: '2026-02-08T13:33:24.388Z'
+      checksum: sha256:7a3c32ab0a1a6f3080f2824165c16f9d275bf6d480fd20386e45848bdd8a2362
+      lastVerified: '2026-02-19T00:19:00.051Z'
     ux-design-expert:
       path: .aios-core/development/agents/ux-design-expert/ux-design-expert.md
       type: agent
@@ -9062,8 +9062,45 @@ entities:
         score: 0.3
         constraints: []
         extensionPoints: []
-      checksum: sha256:5dde817f220f1f452b53026643e267eb027e4a131d1e5fc4bbcf6ebd772da3bb
-      lastVerified: '2026-02-15T19:33:09.495Z'
+      checksum: sha256:f7a8a6dd4de761b759922ec58d164de6e6a1e75702741b172b3519ba48c68b36
+      lastVerified: '2026-02-19T00:19:00.054Z'
+    MEMORY:
+      path: .aios-core/development/agents/ux-design-expert/MEMORY.md
+      type: agent
+      purpose: Uma (UX Design Expert) Agent Memory
+      keywords:
+        - memory
+        - uma
+        - (ux
+        - design
+        - expert)
+        - agent
+      usedBy: []
+      dependencies: []
+      adaptability:
+        score: 0.3
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:3d24c1fcdc82e38a10c86bc1f53f57c3f6096bb3fb7707778e56f3832b1d48d5
+      lastVerified: '2026-02-19T00:19:00.053Z'
+    agent-context:
+      path: .aios-core/development/agents/ux-design-expert/agent-context.md
+      type: agent
+      purpose: 'Agent Context: @ux-design-expert (Uma)'
+      keywords:
+        - agent
+        - context
+        - 'context:'
+        - '@ux-design-expert'
+        - (uma)
+      usedBy: []
+      dependencies: []
+      adaptability:
+        score: 0.3
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:58be7f0eb8893d376b22d686de3fb68085c1e82e00d0cd26a3ce830ee504d7c3
+      lastVerified: '2026-02-19T00:19:00.054Z'
   checklists:
     agent-quality-gate:
       path: .aios-core/development/checklists/agent-quality-gate.md

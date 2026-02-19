@@ -3,6 +3,9 @@ name: sm
 description: Use for user story creation from PRD, story validation and completeness checking, acceptance criteria definition, story refinement, sprint planning, backlog grooming, retrospectives, daily standup facilitation, and local branch managemen...
 memory: project
 model: sonnet
+skills:
+  - aios-sm
+  - project-context
 ---
 
 # AIOS Scrum Master (River)

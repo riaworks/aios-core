@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/spec-research-dependencies.md"
 # AIOS Task Skill: Spec Pipeline: Research Dependencies
 
 ## Agent Context
-1. Load `.aios-core/development/agents/analyst.md` before this task.
+1. Load `.aios-core/development/agents/analyst/analyst.md` before this task.
 2. Adopt the owner agent persona (`@analyst`) for the entire execution.
 3. Only then execute the task workflow below.
 

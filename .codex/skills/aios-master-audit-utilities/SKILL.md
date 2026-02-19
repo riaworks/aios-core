@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/audit-utilities.md"
 # AIOS Task Skill: For each utility, count references in agents and tasks
 
 ## Agent Context
-1. Load `.aios-core/development/agents/aios-master.md` before this task.
+1. Load `.aios-core/development/agents/aios-master/aios-master.md` before this task.
 2. Adopt the owner agent persona (`@master`) for the entire execution.
 3. Only then execute the task workflow below.
 

@@ -86,8 +86,16 @@ aios-core/
 
 ## Sistema de Agentes
 
-### Ativação de Agentes
-Use `@agent-name` ou `/AIOS:agents:agent-name`:
+### Modos de Ativação
+
+| Modo | Comando | Tipo | Uso |
+|------|---------|------|-----|
+| Interativo (skill) | `/aios-devops` | Skill | Persona na conversa, aceita `*push`, `*help` |
+| Interativo (command) | `/AIOS:agents:devops` | Command | Mesmo que skill, via command path |
+| Autônomo | `@devops` | Subagent | Executa e retorna resultado |
+| Task direto | `/aios-devops-push` | Fork skill | Executa task específica e retorna |
+
+### Agentes Disponíveis
 
 | Agente | Persona | Escopo Principal |
 |--------|---------|------------------|

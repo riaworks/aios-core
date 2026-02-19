@@ -3,6 +3,9 @@ name: pm
 description: Use for PRD creation (greenfield and brownfield), epic creation and management, product strategy and vision, feature prioritization (MoSCoW, RICE), roadmap planning, business case development, go/no-go decisions, scope definition, succes...
 memory: project
 model: sonnet
+skills:
+  - aios-pm
+  - project-context
 ---
 
 # AIOS Product Manager (Morgan)

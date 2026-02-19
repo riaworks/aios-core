@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/plan-execute-subtask.md"
 # AIOS Task Skill: Execute Subtask (Coder Agent)
 
 ## Agent Context
-1. Load `.aios-core/development/agents/dev.md` before this task.
+1. Load `.aios-core/development/agents/dev/dev.md` before this task.
 2. Adopt the owner agent persona (`@dev`) for the entire execution.
 3. Only then execute the task workflow below.
 

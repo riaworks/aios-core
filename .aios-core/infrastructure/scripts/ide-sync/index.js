@@ -33,6 +33,7 @@ const claudeSkillsTransformer = require('./claude-skills');
 const githubCopilotAgentsTransformer = require('./github-copilot-agents');
 const geminiSkillsTransformer = require('./gemini-skills');
 const { syncGeminiSkillsManifest } = geminiSkillsTransformer;
+const claudeCommandsTransformer = require('./claude-commands');
 const cursorTransformer = require('./transformers/cursor');
 const antigravityTransformer = require('./transformers/antigravity');
 
@@ -101,6 +102,11 @@ function loadConfig(projectRoot) {
         path: '.antigravity/rules/agents',
         format: 'cursor-style',
       },
+      'claude-commands': {
+        enabled: true,
+        path: '.claude/commands/AIOS/agents',
+        format: 'claude-command-wrapper',
+      },
     },
     redirects: {
       'aios-developer': 'aios-master',
@@ -141,6 +147,7 @@ function getTransformer(format) {
     'full-markdown-yaml': claudeCodeTransformer,
     'claude-native-agent': claudeAgentsTransformer,
     'claude-agent-skill': claudeSkillsTransformer,
+    'claude-command-wrapper': claudeCommandsTransformer,
     'gemini-agent-skill': geminiSkillsTransformer,
     'github-copilot-native-agent': githubCopilotAgentsTransformer,
     'condensed-rules': cursorTransformer,

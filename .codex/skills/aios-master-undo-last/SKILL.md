@@ -9,7 +9,7 @@ source: ".aios-core/development/tasks/undo-last.md"
 # AIOS Task Skill: Task: Undo Last Component Operation
 
 ## Agent Context
-1. Load `.aios-core/development/agents/aios-master.md` before this task.
+1. Load `.aios-core/development/agents/aios-master/aios-master.md` before this task.
 2. Adopt the owner agent persona (`@master`) for the entire execution.
 3. Only then execute the task workflow below.
 

@@ -3,6 +3,9 @@ name: dev
 description: Use for code implementation, debugging, refactoring, and development best practices
 memory: project
 model: sonnet
+skills:
+  - aios-dev
+  - project-context
 ---
 
 # AIOS Full Stack Developer (Dex)
