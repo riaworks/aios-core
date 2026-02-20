@@ -5,7 +5,7 @@
 **Priority:** Critical
 **Points:** 13
 **Effort:** 8-12 hours
-**Status:** Ready for Review
+**Status:** Done
 **Type:** Feature / Infrastructure
 **Lead:** @dev (Dex)
 **Quality Gate:** @qa (Quinn)
@@ -422,7 +422,7 @@ npm test
 - [x] Activation report template no greeting
 - [x] Nivel 0 (Task tool) funciona com DNA
 - [x] Testes passam sem regressoes
-- [ ] Handoff para AGF-5 (SYNAPSE-Lite)
+- [x] Handoff para AGF-5 (SYNAPSE-Lite)
 
 ---
 
@@ -517,6 +517,7 @@ reviews:
 | 2026-02-19 | Sistema | Story criada a partir do ADR-AGF-3 roadmap Phase A |
 | 2026-02-19 | @po (Pax) | Validation: added CodeRabbit Configuration, PO Validation field, consistency fixes |
 | 2026-02-20 | @po (Pax) | Spike hooks concluido. Correcoes aplicadas: (1) `$CLAUDE_ENV_FILE` restrito ao SessionStart — PreCompact usa path fixo; (2) PreCompact output corrigido de `customInstructions` para `hookSpecificOutput.additionalContext`; (3) `.claude/settings.json` movido para CRIAR (nao existe); (4) Coexistencia com `precompact-session-digest.cjs` documentada; (5) `$CLAUDE_PROJECT_DIR` adotado para paths; (6) Matcher `"startup"` adicionado ao SessionStart; (7) Exit codes documentados (0/2); (8) R6 eliminado, R7 adicionado; (9) Exemplos de hook code atualizados com formato JSON correto |
+| 2026-02-20 | @po (Pax) | Story closed. Branch pedro-aios, commits f9fdf85 (implementation), 49a0e73 (story update), e06349f (QA fixes). QA approved with concerns (sed fix applied; remaining items deferred to AGF-5/AGF-6). DoD complete. Handoff to AGF-5. |
 
 ---
 

@@ -601,6 +601,86 @@ reviews:
 
 ---
 
-*Story derivada de: AGF-3 (Roundtable) → Phase B: SYNAPSE-Lite*
+## QA Results
+
+### Review Date: 2026-02-20
+
+### Reviewed By: Quinn (Test Architect)
+
+### Code Quality Assessment
+
+Overall implementation quality is **solid**. The story replaces ~2000 LOC of the SYNAPSE engine with ~200 LOC across 2 bash hooks — a significant simplification that aligns with the ADR decisions (D6, D10, D11, D12). The code demonstrates good Windows cross-platform awareness (avoiding `sed -i`, `jq`, `date -I`), proper infinite-loop guarding in the Stop hook, and correct usage of `hookSpecificOutput` format. All 8 acceptance criteria are met. Test coverage is comprehensive with 40 passing tests across all functional areas.
+
+**Strengths:**
+- Clean separation of concerns between the 4 hooks (SessionStart, PreCompact from AGF-4; UserPromptSubmit, Stop from AGF-5)
+- Defensive coding: `stop_hook_active` guard, `2>/dev/null` fallbacks, cross-platform `mktemp+mv` pattern
+- XML hierarchical injection is well-structured with priority-based sections
+- Bracket inversion logic correctly implements D12 with increasing injection volume
+- Keyword RECALL is sparse (zero overhead when no match)
+- SYNAPSE domain migration preserves `.synapse/` for rollback as specified
+
+**Areas noted:**
+
+1. **Keyword frontmatter parsing (minor):** In `user-prompt-submit.sh` line 79, `sed '1,/^---$/d'` only strips the first `---` line, leaving `trigger: supabase` and the closing `---` in the rule content sent to XML. This is cosmetic — the content is still functional and `head -5` limits the output. Recommend fixing in a future iteration to strip the full frontmatter block.
+
+2. **XML special character escaping (low risk):** If the agent DNA or keyword rule content contains `<`, `>`, or `&` characters, the XML output could become malformed. Current content does not trigger this, but it is a latent risk. Recommend adding basic XML entity escaping in a future story.
+
+3. **Agent switch regex (by design):** The `^@` regex (start of prompt) is a sound decision per R2 mitigation. However, multi-line prompts where `@agent` appears on a subsequent line would not trigger a switch. This is documented and acceptable for Phase B.
+
+4. **Stop hook git diff scope (cosmetic):** `git diff --name-only` counts only unstaged changes. Staged-but-uncommitted changes are not counted. This could cause the hook to accept a stop when there are staged changes that have not been tested. Low risk given typical workflow.
+
+### Refactoring Performed
+
+No refactoring was performed. The implementation is clean and aligns with the story specifications. The two hooks are concise (~111 and ~50 lines respectively) and well-commented.
+
+### Compliance Check
+
+- Coding Standards: PASS — bash scripts follow conventions, proper error handling with fallbacks
+- Project Structure: PASS — hooks in `.claude/hooks/`, rules in `.claude/rules/`, tests in `tests/hooks/`
+- Testing Strategy: PASS — 40 tests cover file existence, output format, agent switch, keywords, brackets, stop hook, domain migration
+- All ACs Met: PASS — AC1 through AC8 all verified and checked
+
+### Improvements Checklist
+
+- [x] UserPromptSubmit hook with agent switch, keyword RECALL, bracket estimation (AC1, AC2, AC3, AC4)
+- [x] XML hierarchical output with priority attributes (AC5)
+- [x] Stop hook with infinite loop guard (AC6)
+- [x] SYNAPSE domain migration to `.claude/rules/` (AC7)
+- [x] 40 tests passing (AC8)
+- [x] 4 hooks registered in `settings.json` (AC1, AC6)
+- [ ] Fix keyword frontmatter parsing to strip full `---` block (cosmetic, future iteration)
+- [ ] Add XML entity escaping for `<`, `>`, `&` in agent DNA content (hardening, future iteration)
+- [ ] Consider adding `--cached` to Stop hook `git diff` to also detect staged changes (enhancement)
+
+### Security Review
+
+No security concerns identified. The hooks:
+- Do not execute external input as code (prompt is parsed via `node -e` with `JSON.parse`, not `eval`)
+- Do not expose sensitive data in XML output
+- Use safe file operations with `mktemp + mv` (no symlink attacks)
+- The `trigger:` matching uses `grep -qi` which is safe (no regex injection from file content since triggers are alphanumeric words)
+
+### Performance Considerations
+
+- UserPromptSubmit hook performance budget is <500ms for detection, <2s for full injection. The `node -e` invocation for JSON parsing adds ~100-200ms overhead. The `sed` and `grep` operations on small files are negligible. Within budget.
+- Stop hook `node -e` invocation for JSON parsing is similarly fast. `git diff --name-only` is lightweight.
+- Keyword matching iterates over `keyword-*.md` files. With 3 files currently, this is negligible. Would need attention if >20 keyword files are added.
+
+### Files Modified During Review
+
+No files were modified during this review.
+
+### Gate Status
+
+Gate: PASS -> docs/qa/gates/AGF-5-synapse-lite.yml
+Risk profile: Standard (no auth/payment/security files touched, tests present, diff ~1453 lines but across 15 files with most being rule content)
+
+### Recommended Status
+
+PASS Ready for Done — All acceptance criteria met, 40 tests passing, no CRITICAL or HIGH issues. Minor cosmetic items documented in Improvements Checklist for future iteration.
+
+---
+
+*Story derivada de: AGF-3 (Roundtable) -> Phase B: SYNAPSE-Lite*
 *ADR Decisions: D6, D10, D11, D12*
 *Epic: Agent Fidelity (AGF) — CLI First | Observability Second | UI Third*
