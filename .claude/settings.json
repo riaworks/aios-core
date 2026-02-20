@@ -12,6 +12,17 @@
         ]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/user-prompt-submit.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "PreCompact": [
       {
         "hooks": [
@@ -22,6 +33,17 @@
           {
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pre-compact-persona.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-quality-gate.sh",
+            "timeout": 30
           }
         ]
       }
