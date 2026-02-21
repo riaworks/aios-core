@@ -7,7 +7,6 @@ const path = require('path');
 const { commandValidate } = require('../../.aios-core/infrastructure/scripts/ide-sync/index');
 const { parseAllAgents } = require('../../.aios-core/infrastructure/scripts/ide-sync/agent-parser');
 const claudeTransformer = require('../../.aios-core/infrastructure/scripts/ide-sync/transformers/claude-code');
-const { syncGeminiCommands } = require('../../.aios-core/infrastructure/scripts/ide-sync/gemini-commands');
 
 describe('ide-sync commandValidate --ide filter', () => {
   let tmpRoot;
@@ -28,7 +27,7 @@ describe('ide-sync commandValidate --ide filter', () => {
         '  targets:',
         '    claude-code:',
         '      enabled: true',
-        '      path: .claude/commands/AIOS/agents',
+        '      path: .claude/agents',
         '      format: full-markdown-yaml',
         '    gemini:',
         '      enabled: true',
@@ -49,12 +48,11 @@ describe('ide-sync commandValidate --ide filter', () => {
     for (const agent of agents) {
       const content = claudeTransformer.transform(agent);
       await fs.writeFile(
-        path.join(tmpRoot, '.gemini', 'rules', 'AIOS', 'agents', agent.filename),
+        path.join(tmpRoot, '.gemini', 'rules', 'AIOS', 'agents', claudeTransformer.getFilename(agent)),
         content,
         'utf8',
       );
     }
-    syncGeminiCommands(agents, tmpRoot, { dryRun: false });
   });
 
   afterEach(async () => {

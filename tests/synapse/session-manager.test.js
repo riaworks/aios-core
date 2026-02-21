@@ -41,7 +41,8 @@ afterEach(() => {
 // 1. Session CRUD Operations (AC: 1)
 // ============================================================
 
-describe('Session CRUD', () => {
+// @deprecated AGF-6: SYNAPSE session management deprecated. Replaced by SYNAPSE-Lite hooks.
+describe.skip('Session CRUD', () => {
   test('createSession creates a valid session file with schema v2.0', () => {
     const session = createSession('test-uuid-001', tmpDir, sessionsDir);
 

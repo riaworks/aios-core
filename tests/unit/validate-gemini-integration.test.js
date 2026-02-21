@@ -26,10 +26,24 @@ describe('validate-gemini-integration', () => {
 
   it('passes when required Gemini files exist', () => {
     write(path.join(tmpRoot, '.gemini', 'rules', 'AIOS', 'agents', 'dev.md'), '# dev');
-    write(path.join(tmpRoot, '.gemini', 'commands', 'aios-menu.toml'), 'description = "menu"');
-    write(path.join(tmpRoot, '.gemini', 'commands', 'aios-dev.toml'), 'description = "dev"');
     write(path.join(tmpRoot, '.aios-core', 'development', 'agents', 'dev.md'), '# dev');
-    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'extension.json'), '{}');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'skills', 'dev', 'SKILL.md'), '# skill');
+    write(
+      path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'extension.json'),
+      JSON.stringify(
+        {
+          skills: [
+            {
+              name: 'dev',
+              path: 'skills/dev/SKILL.md',
+              description: 'Dev skill',
+            },
+          ],
+        },
+        null,
+        2,
+      ),
+    );
     write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'README.md'), '# readme');
     write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'commands', 'aios-status.js'), '');
     write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'commands', 'aios-agents.js'), '');
@@ -39,13 +53,51 @@ describe('validate-gemini-integration', () => {
     const result = validateGeminiIntegration({ projectRoot: tmpRoot });
     expect(result.ok).toBe(true);
     expect(result.errors).toEqual([]);
+    expect(result.metrics.geminiSkills).toBeGreaterThanOrEqual(1);
+    expect(result.metrics.geminiCommands).toBe(0);
   });
 
   it('warns (but passes) when rules file is missing', () => {
     const result = validateGeminiIntegration({ projectRoot: tmpRoot });
     expect(result.ok).toBe(false);
     expect(result.errors.some((e) => e.includes('Missing Gemini agents dir'))).toBe(true);
-    expect(result.errors.some((e) => e.includes('Missing Gemini commands dir'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('Missing Gemini skills dir'))).toBe(true);
     expect(result.warnings.some((w) => w.includes('Gemini rules file not found yet'))).toBe(true);
+  });
+
+  it('fails when extension skills map does not match generated skills', () => {
+    write(path.join(tmpRoot, '.gemini', 'rules', 'AIOS', 'agents', 'dev.md'), '# dev');
+    write(path.join(tmpRoot, '.aios-core', 'development', 'agents', 'dev.md'), '# dev');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'skills', 'dev', 'SKILL.md'), '# skill');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'extension.json'), '{"skills": []}');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'README.md'), '# readme');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'commands', 'aios-status.js'), '');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'commands', 'aios-agents.js'), '');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'commands', 'aios-validate.js'), '');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'hooks', 'hooks.json'), '{}');
+
+    const result = validateGeminiIntegration({ projectRoot: tmpRoot });
+    expect(result.ok).toBe(false);
+    expect(result.errors.some((e) => e.includes('Gemini extension skills map missing paths'))).toBe(true);
+  });
+
+  it('fails when Gemini command adapters still exist', () => {
+    write(path.join(tmpRoot, '.gemini', 'rules', 'AIOS', 'agents', 'dev.md'), '# dev');
+    write(path.join(tmpRoot, '.gemini', 'commands', 'aios-dev.toml'), 'description = "dev"');
+    write(path.join(tmpRoot, '.aios-core', 'development', 'agents', 'dev.md'), '# dev');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'skills', 'dev', 'SKILL.md'), '# skill');
+    write(
+      path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'extension.json'),
+      JSON.stringify({ skills: [{ name: 'dev', path: 'skills/dev/SKILL.md' }] }, null, 2),
+    );
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'README.md'), '# readme');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'commands', 'aios-status.js'), '');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'commands', 'aios-agents.js'), '');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'commands', 'aios-validate.js'), '');
+    write(path.join(tmpRoot, 'packages', 'gemini-aios-extension', 'hooks', 'hooks.json'), '{}');
+
+    const result = validateGeminiIntegration({ projectRoot: tmpRoot });
+    expect(result.ok).toBe(false);
+    expect(result.errors.some((e) => e.includes('Gemini command adapters must be removed'))).toBe(true);
   });
 });

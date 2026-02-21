@@ -317,8 +317,8 @@ class AgentConfigLoader {
       }
     }
     
-    // Load from file
-    const agentPath = path.join(process.cwd(), '.aios-core', 'development', 'agents', `${this.agentId}.md`);
+    // Load from file (agents are stored in subdirectories: agents/{id}/{id}.md)
+    const agentPath = path.join(process.cwd(), '.aios-core', 'development', 'agents', this.agentId, `${this.agentId}.md`);
     
     try {
       const content = await fs.readFile(agentPath, 'utf8');

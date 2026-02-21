@@ -48,18 +48,18 @@ Preferencia de ativacao no Codex CLI:
 1. Use `/skills` e selecione `aios-<agent-id>` vindo de `.codex/skills` (ex.: `aios-architect`)
 2. Se preferir, use os atalhos abaixo (`@architect`, `/architect`, etc.)
 
-Interprete os atalhos abaixo carregando o arquivo correspondente em `.aios-core/development/agents/` (fallback: `.codex/agents/`), renderize o greeting via `generate-greeting.js` e assuma a persona ate `*exit`:
+Interprete os atalhos abaixo carregando o arquivo correspondente em `.aios-core/development/agents/{id}/{id}.md` (fallback: `.codex/agents/{id}.md`), apresente-se com um greeting breve identificando sua persona e assuma a persona ate `*exit`:
 
-- `@architect`, `/architect`, `/architect.md` -> `.aios-core/development/agents/architect.md`
-- `@dev`, `/dev`, `/dev.md` -> `.aios-core/development/agents/dev.md`
-- `@qa`, `/qa`, `/qa.md` -> `.aios-core/development/agents/qa.md`
-- `@pm`, `/pm`, `/pm.md` -> `.aios-core/development/agents/pm.md`
-- `@po`, `/po`, `/po.md` -> `.aios-core/development/agents/po.md`
-- `@sm`, `/sm`, `/sm.md` -> `.aios-core/development/agents/sm.md`
-- `@analyst`, `/analyst`, `/analyst.md` -> `.aios-core/development/agents/analyst.md`
-- `@devops`, `/devops`, `/devops.md` -> `.aios-core/development/agents/devops.md`
-- `@data-engineer`, `/data-engineer`, `/data-engineer.md` -> `.aios-core/development/agents/data-engineer.md`
-- `@ux-design-expert`, `/ux-design-expert`, `/ux-design-expert.md` -> `.aios-core/development/agents/ux-design-expert.md`
-- `@squad-creator`, `/squad-creator`, `/squad-creator.md` -> `.aios-core/development/agents/squad-creator.md`
-- `@aios-master`, `/aios-master`, `/aios-master.md` -> `.aios-core/development/agents/aios-master.md`
+- `@architect`, `/architect`, `/architect.md` -> `.aios-core/development/agents/architect/architect.md`
+- `@dev`, `/dev`, `/dev.md` -> `.aios-core/development/agents/dev/dev.md`
+- `@qa`, `/qa`, `/qa.md` -> `.aios-core/development/agents/qa/qa.md`
+- `@pm`, `/pm`, `/pm.md` -> `.aios-core/development/agents/pm/pm.md`
+- `@po`, `/po`, `/po.md` -> `.aios-core/development/agents/po/po.md`
+- `@sm`, `/sm`, `/sm.md` -> `.aios-core/development/agents/sm/sm.md`
+- `@analyst`, `/analyst`, `/analyst.md` -> `.aios-core/development/agents/analyst/analyst.md`
+- `@devops`, `/devops`, `/devops.md` -> `.aios-core/development/agents/devops/devops.md`
+- `@data-engineer`, `/data-engineer`, `/data-engineer.md` -> `.aios-core/development/agents/data-engineer/data-engineer.md`
+- `@ux-design-expert`, `/ux-design-expert`, `/ux-design-expert.md` -> `.aios-core/development/agents/ux-design-expert/ux-design-expert.md`
+- `@squad-creator`, `/squad-creator`, `/squad-creator.md` -> `.aios-core/development/agents/squad-creator/squad-creator.md`
+- `@aios-master`, `/aios-master`, `/aios-master.md` -> `.aios-core/development/agents/aios-master/aios-master.md`
 <!-- AIOS-MANAGED-END: shortcuts -->

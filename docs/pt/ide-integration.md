@@ -6,8 +6,19 @@
 
 Guia para integrar o AIOS com IDEs e plataformas de desenvolvimento com IA suportadas.
 
-**Versão:** 2.1.0
-**Última Atualização:** 2026-01-28
+**Versão:** 4.2.13
+**Última Atualização:** 2026-02-17
+
+---
+
+## Contrato de Compatibilidade (AIOS 4.2.13)
+
+A matriz de IDEs é validada por contrato versionado:
+
+- Arquivo de contrato: `.aios-core/infrastructure/contracts/compatibility/aios-4.2.13.yaml`
+- Validador: `npm run validate:parity`
+
+Se este documento divergir do validador, a paridade falha.
 
 ---
 
@@ -19,7 +30,7 @@ O AIOS suporta 6 plataformas de desenvolvimento com IA. Escolha a que melhor se 
 
 | Funcionalidade         | Claude Code | Codex CLI | Cursor | Copilot | AntiGravity | Gemini CLI |
 | ---------------------- | :---------: | :-------: | :----: | :-----: | :---------: | :--------: |
-| **Ativação de Agente** |  /command   |  /skills  | @mention | chat modes | workflow-based | prompt mention |
+| **Ativação de Agente** | agentes nativos + skills | `/skills` (agent/task) | @mention | chat modes | workflow-based | rules + skills de extension |
 | **Suporte MCP**        |   Native    |  Native   | Config | Config | Provider-specific | Native |
 | **Tarefas de Subagente** |   Yes     |    Yes    |   No   |   No   |     Yes     |     No     |
 | **Auto-sync**          |     Yes     |    Yes    |  Yes   |  Yes   |     Yes     |    Yes     |
@@ -61,9 +72,10 @@ O AIOS suporta 6 plataformas de desenvolvimento com IA. Escolha a que melhor se 
 
 ```yaml
 config_file: .claude/CLAUDE.md
-agent_folder: .claude/commands/AIOS/agents
-activation: /agent-name (slash commands)
-format: full-markdown-yaml
+agent_folder: .claude/agents
+activation: agentes nativos + skills de agentes/tasks
+format: native-agent-markdown
+skills_folder: .claude/skills
 mcp_support: native
 special_features:
   - Task tool for subagents
@@ -76,17 +88,21 @@ special_features:
 **Configuração:**
 
 1. AIOS cria automaticamente o diretório `.claude/` durante a inicialização
-2. Agentes ficam disponíveis como slash commands: `/dev`, `/qa`, `/architect`
-3. Configure servidores MCP em `~/.claude.json`
+2. Agentes nativos ficam em `.claude/agents/*.md`
+3. Skills de agentes/tasks ficam em `.claude/skills/`
+4. Configure servidores MCP em `~/.claude.json`
 
 **Configuração:**
 
 ```bash
 # Sincronizar todos os alvos habilitados (inclui Claude)
 npm run sync:ide
+npm run sync:agents:claude
+npm run sync:skills:claude
+npm run sync:skills:tasks
 
 # Verificar configuração
-ls -la .claude/commands/AIOS/agents/
+ls -la .claude/agents/ .claude/skills/
 ```
 
 ---
@@ -114,12 +130,15 @@ special_features:
 1. Mantenha `AGENTS.md` na raiz do repositório
 2. Execute `npm run sync:ide:codex`
 3. Execute `npm run sync:skills:codex`
-4. Use `/skills` e selecione `aios-<agent-id>`
-5. Use `sync:skills:codex:global` só quando quiser instalação global
+4. Execute `npm run sync:skills:tasks` para gerar skills curadas de tasks (`aios-<agent>-<task-id>`)
+5. Use `/skills` e selecione `aios-<agent-id>` ou `aios-<agent>-<task-id>`
+6. Use `sync:skills:codex:global` só quando quiser instalação global
 
 ```bash
 npm run sync:ide:codex
 npm run sync:skills:codex
+npm run sync:skills:tasks
+npm run validate:task-skills
 ls -la AGENTS.md .codex/agents/ .codex/skills/
 ```
 
@@ -241,9 +260,10 @@ special_features:
 ```yaml
 config_file: .gemini/rules.md
 agent_folder: .gemini/rules/AIOS/agents
-activation: prompt mention
+activation: rules de agente + skills da extension
 format: text
 mcp_support: native
+skills_folder: packages/gemini-aios-extension/skills
 special_features:
   - Google AI models
   - CLI-based workflow
@@ -278,6 +298,12 @@ O AIOS mantém uma única fonte de verdade para definições de agentes e as sin
 ```bash
 # Sincronizar todos os alvos habilitados
 npm run sync:ide
+
+# Sincronizar saídas nativas/skills por plataforma
+npm run sync:agents:claude
+npm run sync:skills:claude
+npm run sync:skills:gemini
+npm run sync:skills:tasks
 
 # Sincronizar alvos específicos
 npm run sync:ide:cursor
@@ -326,7 +352,10 @@ npm run sync:ide:check
 
 # Verificar diretório específico da plataforma
 ls .cursor/rules/  # Para Cursor
-ls .claude/commands/AIOS/agents/  # Para Claude Code
+ls .claude/agents/  # Claude nativo
+ls .claude/skills/  # Skills de agente/task no Claude
+ls .gemini/rules/AIOS/agents/  # Para Gemini CLI
+ls packages/gemini-aios-extension/skills/  # Skills da extension Gemini
 ```
 
 ### Conflitos de Sincronização
@@ -395,9 +424,11 @@ cp -r .cursor/rules/ ./rules-backup/
 
 # Inicializar Claude Code
 npm run sync:ide
+npm run sync:agents:claude
 
 # Verificar migração
-diff -r ./rules-backup/ .claude/commands/AIOS/agents/
+ls -la .claude/agents/ .claude/skills/
+npm run validate:claude-integration
 ```
 
 ### De Claude Code para Cursor
@@ -422,4 +453,4 @@ npm run sync:ide:cursor
 
 ---
 
-_Guia de Integração com IDEs do Synkra AIOS v4.0_
+_Guia de Integração com IDEs do Synkra AIOS v4.2.13_

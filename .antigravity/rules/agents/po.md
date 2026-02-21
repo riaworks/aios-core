@@ -42,4 +42,4 @@
 **I collaborate with:**
 
 ---
-*AIOS Agent - Synced from .aios-core/development/agents/po.md*
+*AIOS Agent - Synced from .aios-core/development/agents/po/po.md*

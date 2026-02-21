@@ -117,7 +117,8 @@ function buildInput(cwd, overrides = {}) {
 // Test Suites
 // ---------------------------------------------------------------------------
 
-describe('SYNAPSE Hook Entry Point (synapse-engine.cjs)', () => {
+// @deprecated AGF-6: synapse-engine.cjs hook deprecated. Replaced by user-prompt-submit.sh.
+describe.skip('SYNAPSE Hook Entry Point (synapse-engine.cjs)', () => {
   let tmpDir;
 
   afterEach(() => {

@@ -45,7 +45,8 @@ function percentile(sorted, p) {
   return sorted[Math.max(0, idx)];
 }
 
-const describeIfSynapse = synapseExists ? describe : describe.skip;
+// @deprecated AGF-6: SYNAPSE E2E tests deprecated. SYNAPSE-Lite is now active.
+const describeIfSynapse = describe.skip;
 
 describeIfSynapse('SYNAPSE E2E: Regression Guards', () => {
   let manifest;

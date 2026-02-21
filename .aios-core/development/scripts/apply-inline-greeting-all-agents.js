@@ -11,17 +11,17 @@ const AGENTS_DIR = path.join(__dirname, '..', 'agents');
 const CLAUDE_AGENTS_DIR = path.join(__dirname, '..', '..', '.claude', 'commands', 'AIOS', 'agents');
 
 const AGENTS = [
-  'dev.md',
-  'qa.md',
-  'po.md',
-  'sm.md',
-  'pm.md',
-  'architect.md',
-  'analyst.md',
-  'data-engineer.md',
-  'devops.md',
-  'aios-master.md',
-  'ux-design-expert.md',
+  'dev',
+  'qa',
+  'po',
+  'sm',
+  'pm',
+  'architect',
+  'analyst',
+  'data-engineer',
+  'devops',
+  'aios-master',
+  'ux-design-expert',
 ];
 
 const INLINE_GREETING_LOGIC = `
@@ -63,11 +63,12 @@ const INLINE_GREETING_LOGIC = `
 
 const OLD_PATTERN = / {2}- STEP 3: Execute \/greet slash command to generate contextual greeting\n {2}- STEP 4: Display the greeting returned by \/greet command\n {2}- STEP 5: HALT and await user input/;
 
-function updateAgent(agentFile) {
-  const filePath = path.join(AGENTS_DIR, agentFile);
+function updateAgent(agentName) {
+  const agentFile = `${agentName}.md`;
+  const filePath = path.join(AGENTS_DIR, agentName, agentFile);
 
-  // Skip po.md as it's already updated
-  if (agentFile === 'po.md') {
+  // Skip po as it's already updated
+  if (agentName === 'po') {
     console.log(`✓ ${agentFile} - Already updated (test case)`);
     return { updated: false, reason: 'already-updated' };
   }
@@ -98,7 +99,7 @@ function updateAgent(agentFile) {
     fs.writeFileSync(filePath, content);
 
     // Sync to Claude commands directory
-    const claudePath = path.join(CLAUDE_AGENTS_DIR, agentFile);
+    const claudePath = path.join(CLAUDE_AGENTS_DIR, agentName, agentFile);
     fs.writeFileSync(claudePath, content);
 
     console.log(`✅ ${agentFile} - Updated successfully`);
@@ -139,7 +140,7 @@ function main() {
   if (results.updated > 0) {
     console.log('\n✅ All agents updated successfully!');
     console.log('📋 Backups created with .backup-pre-inline extension');
-    console.log('🔄 Files synchronized to .claude/commands/AIOS/agents/');
+    console.log('🔄 Files synchronized to .aios-core/development/agents/');
   }
 }
 

@@ -43,7 +43,8 @@ const { MemoryBridge, BRACKET_LAYER_MAP, BRIDGE_TIMEOUT_MS } = require('../../.a
 // MemoryBridge
 // =============================================================================
 
-describe('MemoryBridge', () => {
+// @deprecated AGF-6: SYNAPSE MemoryBridge deprecated. Memory now in .claude/agent-memory/.
+describe.skip('MemoryBridge', () => {
   let bridge;
 
   beforeEach(() => {

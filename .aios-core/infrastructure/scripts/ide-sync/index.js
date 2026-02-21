@@ -20,14 +20,20 @@
 const fs = require('fs-extra');
 const path = require('path');
 const yaml = require('js-yaml');
+const { execSync } = require('child_process');
 
 const { parseAllAgents } = require('./agent-parser');
 const { generateAllRedirects, writeRedirects } = require('./redirect-generator');
 const { validateAllIdes, formatValidationReport } = require('./validator');
-const { syncGeminiCommands, buildGeminiCommandFiles } = require('./gemini-commands');
 
 // Transformers
 const claudeCodeTransformer = require('./transformers/claude-code');
+const claudeAgentsTransformer = require('./claude-agents');
+const claudeSkillsTransformer = require('./claude-skills');
+const githubCopilotAgentsTransformer = require('./github-copilot-agents');
+const geminiSkillsTransformer = require('./gemini-skills');
+const { syncGeminiSkillsManifest } = geminiSkillsTransformer;
+const claudeCommandsTransformer = require('./claude-commands');
 const cursorTransformer = require('./transformers/cursor');
 const antigravityTransformer = require('./transformers/antigravity');
 
@@ -58,8 +64,13 @@ function loadConfig(projectRoot) {
     targets: {
       'claude-code': {
         enabled: true,
-        path: '.claude/commands/AIOS/agents',
-        format: 'full-markdown-yaml',
+        path: '.claude/agents',
+        format: 'claude-native-agent',
+      },
+      'claude-skills': {
+        enabled: true,
+        path: '.claude/skills',
+        format: 'claude-agent-skill',
       },
       codex: {
         enabled: true,
@@ -71,10 +82,15 @@ function loadConfig(projectRoot) {
         path: '.gemini/rules/AIOS/agents',
         format: 'full-markdown-yaml',
       },
+      'gemini-skills': {
+        enabled: true,
+        path: 'packages/gemini-aios-extension/skills',
+        format: 'gemini-agent-skill',
+      },
       'github-copilot': {
         enabled: true,
         path: '.github/agents',
-        format: 'full-markdown-yaml',
+        format: 'github-copilot-native-agent',
       },
       cursor: {
         enabled: true,
@@ -85,6 +101,11 @@ function loadConfig(projectRoot) {
         enabled: true,
         path: '.antigravity/rules/agents',
         format: 'cursor-style',
+      },
+      'claude-commands': {
+        enabled: true,
+        path: '.claude/commands/AIOS/agents',
+        format: 'claude-command-wrapper',
       },
     },
     redirects: {
@@ -124,6 +145,11 @@ function loadConfig(projectRoot) {
 function getTransformer(format) {
   const transformers = {
     'full-markdown-yaml': claudeCodeTransformer,
+    'claude-native-agent': claudeAgentsTransformer,
+    'claude-agent-skill': claudeSkillsTransformer,
+    'claude-command-wrapper': claudeCommandsTransformer,
+    'gemini-agent-skill': geminiSkillsTransformer,
+    'github-copilot-native-agent': githubCopilotAgentsTransformer,
     'condensed-rules': cursorTransformer,
     'cursor-style': antigravityTransformer,
   };
@@ -184,6 +210,7 @@ function syncIde(agents, ideConfig, ideName, projectRoot, options) {
       const targetPath = path.join(result.targetDir, filename);
 
       if (!options.dryRun) {
+        fs.ensureDirSync(path.dirname(targetPath));
         fs.writeFileSync(targetPath, content, 'utf8');
       }
 
@@ -198,6 +225,78 @@ function syncIde(agents, ideConfig, ideName, projectRoot, options) {
         agent: agent.id,
         error: error.message,
       });
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Sync agent memory directories as junctions/symlinks
+ * Creates links from .claude/agent-memory/{name}/ → .aios-core/development/agents/{name}/
+ * so Claude Code memory writes go to the canonical cross-IDE location.
+ *
+ * @param {object[]} agents - Parsed agent data
+ * @param {string} projectRoot - Project root directory
+ * @param {object} options - Sync options
+ * @returns {object} - { created: number, skipped: number, errors: string[] }
+ */
+function syncMemoryLinks(agents, projectRoot, options) {
+  const memoryDir = path.join(projectRoot, '.claude', 'agent-memory');
+  const sourceBase = path.join(projectRoot, '.aios-core', 'development', 'agents');
+  const isWindows = process.platform === 'win32';
+  const result = { created: 0, skipped: 0, errors: [] };
+
+  if (options.dryRun) {
+    return result;
+  }
+
+  fs.ensureDirSync(memoryDir);
+
+  for (const agent of agents) {
+    if (agent.error) continue;
+
+    const agentName = agent.id;
+    const linkPath = path.join(memoryDir, agentName);
+    const targetPath = path.join(sourceBase, agentName);
+
+    // Ensure canonical directory exists in .aios-core
+    fs.ensureDirSync(targetPath);
+
+    // Skip if link already exists and points to correct target
+    try {
+      const stat = fs.lstatSync(linkPath);
+      if (stat.isSymbolicLink() || stat.isDirectory()) {
+        // Check if it's already a junction/symlink to the right place
+        try {
+          const realPath = fs.realpathSync(linkPath);
+          const expectedReal = fs.realpathSync(targetPath);
+          if (realPath === expectedReal) {
+            result.skipped++;
+            continue;
+          }
+        } catch {
+          // Can't resolve, recreate
+        }
+        // Remove existing to recreate
+        fs.removeSync(linkPath);
+      }
+    } catch {
+      // Doesn't exist, will create
+    }
+
+    try {
+      if (isWindows) {
+        // Use junction on Windows (no admin required)
+        execSync(`cmd /c "mklink /J "${linkPath}" "${targetPath}""`, { stdio: 'pipe' });
+      } else {
+        // Use symlink on Unix
+        const relTarget = path.relative(memoryDir, targetPath);
+        fs.symlinkSync(relTarget, linkPath, 'dir');
+      }
+      result.created++;
+    } catch (error) {
+      result.errors.push(`${agentName}: ${error.message}`);
     }
   }
 
@@ -263,12 +362,26 @@ async function commandSync(options) {
 
     const result = syncIde(agents, ideConfig, ideName, projectRoot, options);
 
-    // Gemini CLI: also sync slash launcher command files (.gemini/commands/*.toml)
-    if (ideName === 'gemini') {
-      const geminiCommands = syncGeminiCommands(agents, projectRoot, options);
-      result.commandFiles = geminiCommands.files;
+    result.commandFiles = [];
+
+    if (ideName === 'gemini-skills') {
+      try {
+        const manifest = syncGeminiSkillsManifest(agents, projectRoot, options);
+        result.manifestFiles = [
+          {
+            filename: path.relative(projectRoot, manifest.extensionPath).replace(/\\/g, '/'),
+            path: manifest.extensionPath,
+          },
+        ];
+      } catch (error) {
+        result.errors.push({
+          agent: 'gemini-skills-manifest',
+          error: error.message,
+        });
+        result.manifestFiles = [];
+      }
     } else {
-      result.commandFiles = [];
+      result.manifestFiles = [];
     }
 
     results.push(result);
@@ -282,7 +395,7 @@ async function commandSync(options) {
     }
 
     const agentCount = result.files.length;
-    const commandCount = (result.commandFiles || []).length;
+    const manifestCount = (result.manifestFiles || []).length;
     const redirectCount = redirectResult.written.length;
     const errorCount = result.errors.length;
 
@@ -293,7 +406,7 @@ async function commandSync(options) {
       }
 
       console.log(
-        `   ${status} ${agentCount} agents${commandCount > 0 ? `, ${commandCount} commands` : ''}, ${redirectCount} redirects${errorCount > 0 ? `, ${errorCount} errors` : ''}`
+        `   ${status} ${agentCount} agents${manifestCount > 0 ? `, ${manifestCount} manifests` : ''}, ${redirectCount} redirects${errorCount > 0 ? `, ${errorCount} errors` : ''}`
       );
 
       if (options.verbose && result.errors.length > 0) {
@@ -304,8 +417,22 @@ async function commandSync(options) {
     }
   }
 
+  // Sync memory links (Claude Code agent memory → .aios-core canonical location)
+  const memoryResult = syncMemoryLinks(agents, projectRoot, options);
+  if (!options.quiet && (memoryResult.created > 0 || memoryResult.errors.length > 0)) {
+    const memStatus = memoryResult.errors.length > 0
+      ? `${colors.yellow}⚠${colors.reset}`
+      : `${colors.green}✓${colors.reset}`;
+    console.log(
+      `${colors.cyan}🧠 Memory links:${colors.reset} ${memStatus} ${memoryResult.created} created, ${memoryResult.skipped} existing${memoryResult.errors.length > 0 ? `, ${memoryResult.errors.length} errors` : ''}`
+    );
+  }
+
   // Summary
-  const totalFiles = results.reduce((sum, r) => sum + r.files.length + (r.commandFiles || []).length, 0);
+  const totalFiles = results.reduce(
+    (sum, r) => sum + r.files.length + (r.manifestFiles || []).length,
+    0,
+  );
   const totalRedirects =
     Object.keys(config.redirects).length * targetIdes.filter(([, c]) => c.enabled).length;
   const totalErrors = results.reduce((sum, r) => sum + r.errors.length, 0);
@@ -398,17 +525,6 @@ async function commandValidate(options) {
       targetDir: path.join(projectRoot, ideConfig.path),
     };
 
-    // Gemini CLI command launcher files are synced under .gemini/commands/*.toml
-    if (ideName === 'gemini') {
-      const commandFiles = buildGeminiCommandFiles(agents).map((entry) => ({
-        filename: entry.filename,
-        content: entry.content,
-      }));
-      ideConfigs['gemini-commands'] = {
-        expectedFiles: commandFiles,
-        targetDir: path.join(projectRoot, '.gemini', 'commands'),
-      };
-    }
   }
 
   // Validate
@@ -465,7 +581,7 @@ function parseArgs() {
  */
 function showHelp() {
   console.log(`
-${colors.bright}IDE Sync${colors.reset} - Sync AIOS agents to IDE command files
+${colors.bright}IDE Sync${colors.reset} - Sync AIOS agents to IDE platform files
 
 ${colors.bright}Usage:${colors.reset}
   node ide-sync/index.js <command> [options]
@@ -533,6 +649,7 @@ module.exports = {
   loadConfig,
   getTransformer,
   syncIde,
+  syncMemoryLinks,
   commandSync,
   commandValidate,
 };

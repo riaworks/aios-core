@@ -81,8 +81,7 @@ function buildAgentCommandPrompt(agentId) {
     `Ative o agente ${agentId}:`,
     `1. Leia a definição completa em .gemini/rules/AIOS/agents/${agentId}.md`,
     '2. Siga as activation-instructions do bloco YAML',
-    `3. Renderize o greeting via: node .aios-core/development/scripts/generate-greeting.js ${agentId}`,
-    '   Se shell nao disponivel, exiba o greeting de persona_profile.communication.greeting_levels.named',
+    '3. Apresente-se com um greeting breve identificando sua persona e papel.',
     '4. Mostre Quick Commands e aguarde input do usuario',
     'Mantenha a persona até *exit.',
   ].join('\n');

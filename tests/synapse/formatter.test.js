@@ -22,7 +22,8 @@ const {
 // estimateTokens
 // =============================================================================
 
-describe('estimateTokens', () => {
+// @deprecated AGF-6: SYNAPSE formatter deprecated. SYNAPSE-Lite is now active.
+describe.skip('estimateTokens', () => {
   test('should estimate tokens as string length / 4', () => {
     expect(estimateTokens('abcdefgh')).toBe(2); // 8 / 4
   });

@@ -44,6 +44,24 @@ function readFileIfExists(filePath) {
   return null;
 }
 
+function collectMarkdownRelativePaths(rootDir, currentDir = rootDir) {
+  if (!fs.existsSync(currentDir)) return [];
+  const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const absolutePath = path.join(currentDir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...collectMarkdownRelativePaths(rootDir, absolutePath));
+      continue;
+    }
+    if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
+    files.push(path.relative(rootDir, absolutePath).replace(/\\/g, '/'));
+  }
+
+  return files;
+}
+
 /**
  * Validate sync status for a single IDE
  * @param {object[]} expectedFiles - Array of {filename, content} expected
@@ -116,7 +134,7 @@ function validateIdeSync(expectedFiles, targetDir, redirectsConfig) {
   // Check for orphaned files (files in target not in expected)
   if (fs.existsSync(targetDir)) {
     try {
-      const actualFiles = fs.readdirSync(targetDir).filter(f => f.endsWith('.md'));
+      const actualFiles = collectMarkdownRelativePaths(targetDir);
 
       for (const file of actualFiles) {
         if (!expectedFilenames.has(file)) {
@@ -267,6 +285,7 @@ module.exports = {
   hashContent,
   fileExists,
   readFileIfExists,
+  collectMarkdownRelativePaths,
   validateIdeSync,
   validateAllIdes,
   formatValidationReport,

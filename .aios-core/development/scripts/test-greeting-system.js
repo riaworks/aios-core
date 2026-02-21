@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * @deprecated Since AGF-6 (2026-02-20). Tests the deprecated greeting-builder.js.
+ * Preserved for rollback during 1 sprint. Remove after AGF-7 confirmation.
+ */
+
+/**
  * Test Script for Contextual Greeting System
  *
  * Tests the greeting builder with different scenarios

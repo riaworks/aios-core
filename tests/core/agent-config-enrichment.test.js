@@ -290,13 +290,13 @@ describe('Story ACT-8: Document Governance', () => {
 
   describe('aios-master Command', () => {
     test('aios-master.md contains *update-source-tree command', () => {
-      const content = readFile('.aios-core/development/agents/aios-master.md');
+      const content = readFile('.aios-core/development/agents/aios-master/aios-master.md');
       expect(content).toContain('update-source-tree');
       expect(content).toContain('Validate data file governance');
     });
 
     test('aios-master dependencies include update-source-tree.md', () => {
-      const content = readFile('.aios-core/development/agents/aios-master.md');
+      const content = readFile('.aios-core/development/agents/aios-master/aios-master.md');
       expect(content).toContain('update-source-tree.md');
     });
   });
