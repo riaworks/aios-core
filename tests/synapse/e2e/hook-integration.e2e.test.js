@@ -71,7 +71,8 @@ function buildInput(overrides = {}) {
 // Test Suite
 // ---------------------------------------------------------------------------
 
-const describeIfHookExists = HOOK_EXISTS ? describe : describe.skip;
+// @deprecated AGF-6: synapse-engine.cjs hook deprecated. Replaced by user-prompt-submit.sh.
+const describeIfHookExists = describe.skip;
 
 describeIfHookExists('SYNAPSE E2E: Hook Integration', () => {
 

@@ -38,4 +38,4 @@
 **I collaborate with:**
 
 ---
-*AIOS Agent - Synced from .aios-core/development/agents/squad-creator.md*
+*AIOS Agent - Synced from .aios-core/development/agents/squad-creator/squad-creator.md*

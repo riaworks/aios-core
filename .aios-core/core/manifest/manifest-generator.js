@@ -165,13 +165,13 @@ class ManifestGenerator {
     const errors = [];
 
     try {
-      const files = await fs.readdir(agentsDir);
-      const mdFiles = files.filter(f => f.endsWith('.md'));
+      const entries = await fs.readdir(agentsDir, { withFileTypes: true });
 
-      for (const file of mdFiles) {
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue;
+        const candidate = path.join(agentsDir, entry.name, `${entry.name}.md`);
         try {
-          const filePath = path.join(agentsDir, file);
-          const content = await fs.readFile(filePath, 'utf8');
+          const content = await fs.readFile(candidate, 'utf8');
           const parsed = parseYAMLFromMarkdown(content);
 
           if (parsed && parsed.agent) {
@@ -179,18 +179,20 @@ class ManifestGenerator {
             const persona = parsed.persona_profile || parsed.persona || {};
 
             agents.push({
-              id: agent.id || file.replace('.md', ''),
+              id: agent.id || entry.name,
               name: agent.name || 'Unknown',
               archetype: persona.archetype || agent.title || 'Agent',
               icon: agent.icon || '🤖',
               version: this.version,
               status: 'active',
-              file_path: `.aios-core/development/agents/${file}`,
+              file_path: `.aios-core/development/agents/${entry.name}/${entry.name}.md`,
               when_to_use: agent.whenToUse || '',
             });
           }
         } catch (e) {
-          errors.push(`Error parsing ${file}: ${e.message}`);
+          if (e.code !== 'ENOENT') {
+            errors.push(`Error parsing ${entry.name}: ${e.message}`);
+          }
         }
       }
 

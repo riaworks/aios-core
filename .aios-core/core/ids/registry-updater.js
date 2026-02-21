@@ -4,7 +4,12 @@
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-const lockfile = require('proper-lockfile');
+let properLockfile = null;
+try {
+  properLockfile = require('proper-lockfile');
+} catch {
+  properLockfile = null;
+}
 const { RegistryLoader } = require(path.resolve(__dirname, 'registry-loader.js'));
 const {
   extractEntityId,
@@ -28,6 +33,7 @@ const LOCK_TIMEOUT_MS = 5000;
 const LOCK_RETRY_COUNT = 3;
 const LOCK_RETRY_DELAY_MS = 100;
 const LOCK_STALE_MS = 10000;
+const FALLBACK_LOCK_OWNER = `ids-registry-updater:${process.pid}`;
 
 const WATCH_PATHS = SCAN_CONFIG.map((c) => c.basePath);
 
@@ -458,6 +464,89 @@ class RegistryUpdater {
 
   // ─── Internal: File Locking ──────────────────────────────────────
 
+  _sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  _isFallbackLockStale() {
+    try {
+      const lockStat = fs.statSync(this._lockFile);
+      return (Date.now() - lockStat.mtimeMs) > LOCK_STALE_MS;
+    } catch (err) {
+      if (err.code === 'ENOENT') return true;
+      throw err;
+    }
+  }
+
+  _removeFallbackLockIfOwned(ownerToken) {
+    try {
+      const raw = fs.readFileSync(this._lockFile, 'utf8');
+      let parsed = null;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        parsed = null;
+      }
+
+      // Only remove if this process owns the lock token.
+      if (parsed && parsed.token && parsed.token !== ownerToken) {
+        return;
+      }
+
+      fs.unlinkSync(this._lockFile);
+    } catch (err) {
+      if (err.code === 'ENOENT') return;
+      throw err;
+    }
+  }
+
+  _removeFallbackStaleLock() {
+    try {
+      fs.unlinkSync(this._lockFile);
+    } catch (err) {
+      if (err.code === 'ENOENT') return;
+      throw err;
+    }
+  }
+
+  async _acquireFallbackLock() {
+    const ownerToken = `${FALLBACK_LOCK_OWNER}:${Date.now()}:${Math.random().toString(36).slice(2, 10)}`;
+
+    for (let attempt = 0; attempt <= LOCK_RETRY_COUNT; attempt++) {
+      try {
+        const payload = {
+          owner: FALLBACK_LOCK_OWNER,
+          pid: process.pid,
+          token: ownerToken,
+          acquiredAt: new Date().toISOString(),
+        };
+
+        fs.writeFileSync(this._lockFile, JSON.stringify(payload), { flag: 'wx', encoding: 'utf8' });
+
+        return async () => {
+          this._removeFallbackLockIfOwned(ownerToken);
+        };
+      } catch (err) {
+        if (err.code !== 'EEXIST') {
+          throw err;
+        }
+
+        if (this._isFallbackLockStale()) {
+          this._removeFallbackStaleLock();
+          continue;
+        }
+
+        if (attempt === LOCK_RETRY_COUNT) {
+          throw new Error(`fallback lock timeout after ${LOCK_RETRY_COUNT + 1} attempts`);
+        }
+
+        await this._sleep(LOCK_RETRY_DELAY_MS);
+      }
+    }
+
+    throw new Error('fallback lock acquisition failed');
+  }
+
   async _withLock(operation) {
     const lockDir = path.dirname(this._lockFile);
     if (!fs.existsSync(lockDir)) {
@@ -470,15 +559,19 @@ class RegistryUpdater {
 
     let release;
     try {
-      release = await lockfile.lock(this._registryPath, {
-        stale: LOCK_STALE_MS,
-        retries: {
-          retries: LOCK_RETRY_COUNT,
-          minTimeout: LOCK_RETRY_DELAY_MS,
-          maxTimeout: LOCK_TIMEOUT_MS,
-        },
-        lockfilePath: this._lockFile,
-      });
+      if (properLockfile && typeof properLockfile.lock === 'function') {
+        release = await properLockfile.lock(this._registryPath, {
+          stale: LOCK_STALE_MS,
+          retries: {
+            retries: LOCK_RETRY_COUNT,
+            minTimeout: LOCK_RETRY_DELAY_MS,
+            maxTimeout: LOCK_TIMEOUT_MS,
+          },
+          lockfilePath: this._lockFile,
+        });
+      } else {
+        release = await this._acquireFallbackLock();
+      }
     } catch (err) {
       throw new Error(`[IDS-Updater] Could not acquire lock: ${err.message}`);
     }

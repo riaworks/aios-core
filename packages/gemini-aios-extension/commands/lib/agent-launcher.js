@@ -3,7 +3,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
 
 const AGENT_INFO = {
   'aios-master': { icon: '🧠', role: 'Master Orchestrator' },
@@ -25,8 +24,10 @@ function listAvailableAgents(projectRoot = process.cwd()) {
   if (!fs.existsSync(sourceDir)) return [];
   return fs
     .readdirSync(sourceDir)
-    .filter((f) => f.endsWith('.md') && !f.startsWith('_'))
-    .map((f) => f.replace('.md', ''))
+    .filter((f) => {
+      const agentFile = path.join(sourceDir, f, `${f}.md`);
+      return fs.existsSync(agentFile);
+    })
     .sort();
 }
 
@@ -38,35 +39,19 @@ function commandNameForAgent(agentId) {
 }
 
 function hasAgent(projectRoot, agentId) {
-  const canonical = path.join(projectRoot, '.aios-core', 'development', 'agents', `${agentId}.md`);
+  const canonical = path.join(projectRoot, '.aios-core', 'development', 'agents', agentId, `${agentId}.md`);
   const gemini = path.join(projectRoot, '.gemini', 'rules', 'AIOS', 'agents', `${agentId}.md`);
   return fs.existsSync(canonical) || fs.existsSync(gemini);
 }
 
-function renderGreeting(projectRoot, agentId) {
-  const scriptPath = path.join(projectRoot, '.aios-core', 'development', 'scripts', 'generate-greeting.js');
-  if (!fs.existsSync(scriptPath)) {
-    return null;
-  }
-
-  const result = spawnSync('node', [scriptPath, agentId], {
-    cwd: projectRoot,
-    encoding: 'utf8',
-    timeout: 10000,
-  });
-
-  if (result.status !== 0) {
-    return null;
-  }
-
-  return (result.stdout || '').trim() || null;
-}
+// Greeting is now handled inline by the agent persona during activation.
+// generate-greeting.js was removed — agents greet based on their persona definition.
 
 function buildActivationPrompt(agentId) {
   return [
-    `Ative o agente ${agentId} usando .aios-core/development/agents/${agentId}.md`,
+    `Ative o agente ${agentId} usando .aios-core/development/agents/${agentId}/${agentId}.md`,
     `(fallback: .gemini/rules/AIOS/agents/${agentId}.md),`,
-    `renderize o greeting via node .aios-core/development/scripts/generate-greeting.js ${agentId}`,
+    'apresente-se com um greeting breve identificando sua persona',
     'e mantenha a persona ate *exit.',
   ].join(' ');
 }
@@ -91,18 +76,12 @@ function runAgentLauncher(agentId, projectRoot = process.cwd()) {
 
   const info = AGENT_INFO[agentId] || { icon: '🤖', role: 'Agent' };
   const activationPrompt = buildActivationPrompt(agentId);
-  const greeting = renderGreeting(projectRoot, agentId);
 
   console.log(`${info.icon} AIOS Agent Selected: ${agentId}`);
   console.log(`Role: ${info.role}`);
   console.log('');
   console.log('Activation Prompt (copy and send as your next message):');
   console.log(activationPrompt);
-
-  if (greeting) {
-    console.log('\nGreeting Preview:');
-    console.log(greeting.split('\n').slice(0, 8).join('\n'));
-  }
 
   return 0;
 }

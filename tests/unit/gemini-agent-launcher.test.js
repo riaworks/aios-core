@@ -28,8 +28,8 @@ describe('gemini agent launcher', () => {
   });
 
   it('lists canonical agents from source-of-truth directory', () => {
-    write(path.join(tmpRoot, '.aios-core', 'development', 'agents', 'dev.md'), '# dev');
-    write(path.join(tmpRoot, '.aios-core', 'development', 'agents', 'architect.md'), '# architect');
+    write(path.join(tmpRoot, '.aios-core', 'development', 'agents', 'dev', 'dev.md'), '# dev');
+    write(path.join(tmpRoot, '.aios-core', 'development', 'agents', 'architect', 'architect.md'), '# architect');
     write(path.join(tmpRoot, '.aios-core', 'development', 'agents', '_README.md'), '# ignore');
 
     const result = listAvailableAgents(tmpRoot);
@@ -44,8 +44,8 @@ describe('gemini agent launcher', () => {
 
   it('builds deterministic activation prompt', () => {
     const prompt = buildActivationPrompt('devops');
-    expect(prompt).toContain('.aios-core/development/agents/devops.md');
-    expect(prompt).toContain('generate-greeting.js devops');
+    expect(prompt).toContain('.aios-core/development/agents/devops/devops.md');
+    expect(prompt).toContain('greeting breve identificando sua persona');
     expect(prompt).toContain('*exit');
   });
 

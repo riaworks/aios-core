@@ -59,7 +59,8 @@ try {
   proAvailable = false;
 }
 
-const describeIfPro = proAvailable ? describe : describe.skip;
+// @deprecated AGF-6: SYNAPSE MemoryProvider deprecated. Memory now in .claude/agent-memory/.
+const describeIfPro = describe.skip;
 
 // =============================================================================
 // SynapseMemoryProvider

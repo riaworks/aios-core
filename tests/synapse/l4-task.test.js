@@ -12,7 +12,8 @@ const L4TaskProcessor = require('../../.aios-core/core/synapse/layers/l4-task');
 
 jest.setTimeout(30000);
 
-describe('L4TaskProcessor', () => {
+// @deprecated AGF-6: SYNAPSE 8-layer engine deprecated. Rules now in .claude/rules/.
+describe.skip('L4TaskProcessor', () => {
   let processor;
 
   beforeEach(() => {

@@ -328,7 +328,7 @@ function validateAgentFormat(agents) {
           type: 'DEPRECATED_GREETING',
           agent: id,
           message: `@${id} uses deprecated generate-greeting.js`,
-          suggestion: `Change to greeting-builder.js`,
+          suggestion: `Both generate-greeting.js and greeting-builder.js are deprecated since AGF-6. Greeting is now defined in agent .md Enhancement section.`,
         });
       }
     }

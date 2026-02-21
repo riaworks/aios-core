@@ -1,3 +1,9 @@
+/**
+ * @deprecated Since AGF-6 (2026-02-20). Replaced by SessionStart hook + agent frontmatter.
+ * Preserved for rollback during 1 sprint. Remove after AGF-7 confirmation.
+ * See: .claude/hooks/session-start.sh and .claude/agents/{id}.md
+ */
+
 // SYN-14: Boot time captured before ANY require — measures cold start
 const _BOOT_TIME = process.hrtime.bigint();
 

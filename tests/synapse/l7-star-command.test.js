@@ -23,7 +23,8 @@ function cleanupTempDir(dir) {
   fs.rmSync(dir, { recursive: true, force: true });
 }
 
-describe('L7StarCommandProcessor', () => {
+// @deprecated AGF-6: SYNAPSE 8-layer engine deprecated. Rules now in .claude/rules/.
+describe.skip('L7StarCommandProcessor', () => {
   let tempDir;
   let processor;
 

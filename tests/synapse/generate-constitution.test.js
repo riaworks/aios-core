@@ -160,7 +160,8 @@ Imports relativos criam acoplamento.
 Amendment process here.
 `;
 
-describe('cleanText', () => {
+// @deprecated AGF-6: SYNAPSE constitution generator deprecated. Constitution now in .claude/rules/.
+describe.skip('cleanText', () => {
   test('should remove backticks from text', () => {
     expect(cleanText('`git push` para remote')).toBe('git push para remote');
   });

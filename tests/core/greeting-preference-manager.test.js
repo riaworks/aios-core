@@ -34,7 +34,8 @@ const GreetingPreferenceManager = require('../../.aios-core/development/scripts/
 // Set timeout for all tests
 jest.setTimeout(30000);
 
-describe('GreetingPreferenceManager', () => {
+// @deprecated AGF-6: greeting-builder deprecated — replaced by agent .md Enhancement section.
+describe.skip('GreetingPreferenceManager', () => {
   let manager;
 
   beforeEach(() => {

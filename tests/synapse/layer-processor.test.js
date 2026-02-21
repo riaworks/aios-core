@@ -27,7 +27,8 @@ class TestProcessor extends LayerProcessor {
   }
 }
 
-describe('LayerProcessor', () => {
+// @deprecated AGF-6: SYNAPSE 8-layer engine deprecated. Rules now in .claude/rules/.
+describe.skip('LayerProcessor', () => {
   describe('abstract class enforcement', () => {
     test('should throw when instantiated directly', () => {
       expect(() => new LayerProcessor({ name: 'direct', layer: 0 }))

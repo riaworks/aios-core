@@ -72,7 +72,8 @@ afterEach(() => {
 
 // ---- UAP scoring ----
 
-describe('collectQualityMetrics — UAP scoring', () => {
+// @deprecated AGF-6: SYNAPSE diagnostics deprecated. SYNAPSE-Lite is now active.
+describe.skip('collectQualityMetrics — UAP scoring', () => {
   test('100 score when all loaders ok', () => {
     writeJson(path.join(tmpDir, '.synapse', 'metrics', 'uap-metrics.json'), buildAllOkUap());
     writeJson(path.join(tmpDir, '.synapse', 'metrics', 'hook-metrics.json'), buildAllOkHook());

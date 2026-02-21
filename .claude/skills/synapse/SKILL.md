@@ -3,11 +3,19 @@ name: synapse
 description: "This skill should be used when users want to understand the SYNAPSE context engine, manage domains, configure context rules, or troubleshoot rule injection. Use when asked about SYNAPSE architecture, domain management, star-commands, context brackets, or the 8-layer processing pipeline."
 ---
 
+> **AGF-6 STATUS:** SYNAPSE-Lite is now the active mode. The full SYNAPSE engine (8-layer runtime) is deprecated.
+> Active implementation: 4 Claude Code hooks (`session-start.sh`, `user-prompt-submit.sh`, `precompact-session-digest.cjs`, `stop-quality-gate.sh`) + `.claude/rules/` directory.
+> The `.synapse/` directory is preserved for rollback (1 sprint) but is no longer active.
+
 # SYNAPSE Context Engine
 
 ## Overview
 
 SYNAPSE (Synkra Adaptive Processing & State Engine) is the unified context engine for AIOS. It injects contextual rules into every prompt via an 8-layer processing pipeline, adapting to context window usage through bracket-aware filtering.
+
+> **DEPRECATED (AGF-6):** The full SYNAPSE engine runtime has been replaced by SYNAPSE-Lite.
+> SYNAPSE-Lite uses native Claude Code mechanisms: 4 hooks + `.claude/rules/` files.
+> The original 8-layer engine code is preserved in `.aios-core/core/synapse/` for reference.
 
 **What it does:**
 - Injects rules per-prompt via Claude Code's `UserPromptSubmit` hook
