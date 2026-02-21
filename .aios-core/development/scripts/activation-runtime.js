@@ -1,6 +1,10 @@
+/**
+ * @deprecated Since AGF-6 (2026-02-20). Replaced by SessionStart hook + agent frontmatter.
+ * Preserved for rollback during 1 sprint. Remove after AGF-7 confirmation.
+ */
 'use strict';
 
-const { UnifiedActivationPipeline } = require('./unified-activation-pipeline');
+const { UnifiedActivationPipeline } = require('./unified-activation-pipeline'); // eslint-disable-line -- deprecated
 
 /**
  * Canonical activation runtime for AIOS agents.

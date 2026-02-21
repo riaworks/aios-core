@@ -58,7 +58,8 @@ jest.mock('../../.aios-core/core/orchestration/surface-checker', () => ({
 
 const { loadProjectStatus } = require('../../.aios-core/infrastructure/scripts/project-status-loader');
 
-describe('Story ACT-7: Context-Aware Greeting Sections', () => {
+// @deprecated AGF-6: greeting-builder deprecated — replaced by agent .md Enhancement section.
+describe.skip('Story ACT-7: Context-Aware Greeting Sections', () => {
   let builder;
   let mockAgent;
 

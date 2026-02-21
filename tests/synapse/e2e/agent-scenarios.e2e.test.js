@@ -23,7 +23,8 @@ const { parseManifest } = require(path.join(PROJECT_ROOT, '.aios-core', 'core', 
 
 const synapseExists = fs.existsSync(SYNAPSE_DIR) && fs.existsSync(MANIFEST_PATH);
 
-const describeIfSynapse = synapseExists ? describe : describe.skip;
+// @deprecated AGF-6: SYNAPSE E2E tests deprecated. SYNAPSE-Lite is now active.
+const describeIfSynapse = describe.skip;
 
 // ---------------------------------------------------------------------------
 // Helpers

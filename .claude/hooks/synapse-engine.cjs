@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+/**
+ * @deprecated Since AGF-6 (2026-02-20). Replaced by user-prompt-submit.sh (AGF-5 SYNAPSE-Lite).
+ * The UserPromptSubmit hook is now bash-native (see .claude/hooks/user-prompt-submit.sh).
+ * This CJS wrapper is no longer active in .claude/settings.json.
+ * Preserved for rollback during 1 sprint. Remove after AGF-7 confirmation.
+ */
 // SYN-14: Boot time captured before ANY require — measures hook cold start
 const _BOOT_TIME = process.hrtime.bigint();
 'use strict';
@@ -49,7 +55,13 @@ async function main() {
   if (!runtime) return;
 
   const result = await runtime.engine.process(input.prompt, runtime.session);
-  process.stdout.write(JSON.stringify(buildHookOutput(result.xml)));
+  const output = JSON.stringify(buildHookOutput(result.xml));
+
+  // Write and flush stdout (callback may not exist in mocked environments)
+  const flushed = process.stdout.write(output);
+  if (!flushed) {
+    await new Promise((resolve) => process.stdout.once('drain', resolve));
+  }
 }
 
 /**
@@ -65,10 +77,12 @@ function safeExit(code) {
 function run() {
   const timer = setTimeout(() => safeExit(0), HOOK_TIMEOUT_MS);
   timer.unref();
-  main().catch((err) => {
-    console.error(`[synapse-hook] ${err.message}`);
-    safeExit(0);
-  });
+  main()
+    .then(() => safeExit(0))
+    .catch((err) => {
+      console.error(`[synapse-hook] ${err.message}`);
+      safeExit(0);
+    });
 }
 
 if (require.main === module) run();

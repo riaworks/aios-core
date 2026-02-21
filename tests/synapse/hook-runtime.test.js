@@ -18,7 +18,8 @@ function writeFile(filePath, content) {
   fs.writeFileSync(filePath, content, 'utf8');
 }
 
-describe('hook-runtime', () => {
+// @deprecated AGF-6: SYNAPSE hook runtime deprecated. Replaced by SYNAPSE-Lite hooks.
+describe.skip('hook-runtime', () => {
   it('returns null when cwd is missing', () => {
     expect(resolveHookRuntime({})).toBeNull();
     expect(resolveHookRuntime()).toBeNull();

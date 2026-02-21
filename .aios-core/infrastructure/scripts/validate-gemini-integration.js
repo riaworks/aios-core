@@ -11,7 +11,9 @@ function getDefaultOptions() {
     rulesFile: path.join(projectRoot, '.gemini', 'rules.md'),
     agentsDir: path.join(projectRoot, '.gemini', 'rules', 'AIOS', 'agents'),
     commandsDir: path.join(projectRoot, '.gemini', 'commands'),
+    skillsDir: path.join(projectRoot, 'packages', 'gemini-aios-extension', 'skills'),
     extensionDir: path.join(projectRoot, 'packages', 'gemini-aios-extension'),
+    extensionFile: path.join(projectRoot, 'packages', 'gemini-aios-extension', 'extension.json'),
     sourceAgentsDir: path.join(projectRoot, '.aios-core', 'development', 'agents'),
     quiet: false,
     json: false,
@@ -31,6 +33,33 @@ function countMarkdownFiles(dirPath) {
   return fs.readdirSync(dirPath).filter((f) => f.endsWith('.md')).length;
 }
 
+function listMarkdownFilenames(dirPath) {
+  if (!fs.existsSync(dirPath)) return [];
+  return fs.readdirSync(dirPath)
+    .filter((f) => f.endsWith('.md'))
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function toSkillIdFromFilename(filename) {
+  const id = path.basename(filename, '.md');
+  if (id === 'aios-master') return 'aios-master';
+  if (id.startsWith('aios-')) return id.slice(5);
+  return id;
+}
+
+function listSkillIds(skillsDir) {
+  if (!fs.existsSync(skillsDir)) return [];
+  return fs.readdirSync(skillsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .filter((entry) => fs.existsSync(path.join(skillsDir, entry.name, 'SKILL.md')))
+    .map((entry) => entry.name)
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function normalizeManifestPath(relPath) {
+  return String(relPath || '').replace(/\\/g, '/');
+}
+
 function validateGeminiIntegration(options = {}) {
   const projectRoot = options.projectRoot || process.cwd();
   const resolved = {
@@ -40,7 +69,9 @@ function validateGeminiIntegration(options = {}) {
     rulesFile: options.rulesFile || path.join(projectRoot, '.gemini', 'rules.md'),
     agentsDir: options.agentsDir || path.join(projectRoot, '.gemini', 'rules', 'AIOS', 'agents'),
     commandsDir: options.commandsDir || path.join(projectRoot, '.gemini', 'commands'),
+    skillsDir: options.skillsDir || path.join(projectRoot, 'packages', 'gemini-aios-extension', 'skills'),
     extensionDir: options.extensionDir || path.join(projectRoot, 'packages', 'gemini-aios-extension'),
+    extensionFile: options.extensionFile || path.join(projectRoot, 'packages', 'gemini-aios-extension', 'extension.json'),
     sourceAgentsDir: options.sourceAgentsDir || path.join(projectRoot, '.aios-core', 'development', 'agents'),
   };
   const errors = [];
@@ -53,25 +84,34 @@ function validateGeminiIntegration(options = {}) {
   if (!fs.existsSync(resolved.agentsDir)) {
     errors.push(`Missing Gemini agents dir: ${path.relative(resolved.projectRoot, resolved.agentsDir)}`);
   }
-  if (!fs.existsSync(resolved.commandsDir)) {
-    errors.push(`Missing Gemini commands dir: ${path.relative(resolved.projectRoot, resolved.commandsDir)}`);
+  if (!fs.existsSync(resolved.skillsDir)) {
+    errors.push(`Missing Gemini skills dir: ${path.relative(resolved.projectRoot, resolved.skillsDir)}`);
   }
 
-  const sourceCount = countMarkdownFiles(resolved.sourceAgentsDir);
+  const sourceFiles = listMarkdownFilenames(resolved.sourceAgentsDir);
+  const sourceCount = sourceFiles.length;
+  const expectedSkillIds = sourceFiles.map(toSkillIdFromFilename);
+  const expectedSkillPaths = expectedSkillIds.map((skillId) => `skills/${skillId}/SKILL.md`);
+
   const geminiCount = countMarkdownFiles(resolved.agentsDir);
+  const geminiSkills = listSkillIds(resolved.skillsDir);
+  const geminiSkillSet = new Set(geminiSkills);
   const commandFiles = fs.existsSync(resolved.commandsDir)
     ? fs.readdirSync(resolved.commandsDir).filter((f) => f.endsWith('.toml'))
     : [];
-  const expectedCommandCount = sourceCount > 0 ? sourceCount + 1 : 0;
-
-  if (sourceCount > 0 && commandFiles.length !== expectedCommandCount) {
-    warnings.push(`Gemini command count differs from source (${commandFiles.length}/${expectedCommandCount})`);
-  }
-  if (!commandFiles.includes('aios-menu.toml')) {
-    errors.push(`Missing Gemini command file: ${path.relative(resolved.projectRoot, path.join(resolved.commandsDir, 'aios-menu.toml'))}`);
+  if (commandFiles.length > 0) {
+    errors.push(`Gemini command adapters must be removed: ${commandFiles.join(', ')}`);
   }
   if (sourceCount > 0 && geminiCount !== sourceCount) {
     warnings.push(`Gemini agent count differs from source (${geminiCount}/${sourceCount})`);
+  }
+  if (sourceCount > 0 && geminiSkills.length !== sourceCount) {
+    warnings.push(`Gemini skill count differs from source (${geminiSkills.length}/${sourceCount})`);
+  }
+
+  const missingSkills = expectedSkillIds.filter((skillId) => !geminiSkillSet.has(skillId));
+  if (missingSkills.length > 0) {
+    errors.push(`Missing Gemini skill files: ${missingSkills.join(', ')}`);
   }
 
   const requiredExtensionFiles = [
@@ -90,6 +130,25 @@ function validateGeminiIntegration(options = {}) {
     }
   }
 
+  if (fs.existsSync(resolved.extensionFile)) {
+    try {
+      const extension = JSON.parse(fs.readFileSync(resolved.extensionFile, 'utf8'));
+      const manifestSkills = Array.isArray(extension.skills) ? extension.skills : [];
+      const manifestSkillPaths = new Set(
+        manifestSkills.map((skill) => normalizeManifestPath(skill.path)),
+      );
+      const missingManifestPaths = expectedSkillPaths.filter(
+        (relPath) => !manifestSkillPaths.has(relPath),
+      );
+
+      if (missingManifestPaths.length > 0) {
+        errors.push(`Gemini extension skills map missing paths: ${missingManifestPaths.join(', ')}`);
+      }
+    } catch (error) {
+      errors.push(`Invalid Gemini extension manifest JSON: ${error.message}`);
+    }
+  }
+
   return {
     ok: errors.length === 0,
     errors,
@@ -98,6 +157,7 @@ function validateGeminiIntegration(options = {}) {
       sourceAgents: sourceCount,
       geminiAgents: geminiCount,
       geminiCommands: commandFiles.length,
+      geminiSkills: geminiSkills.length,
     },
   };
 }
@@ -105,7 +165,7 @@ function validateGeminiIntegration(options = {}) {
 function formatHumanReport(result) {
   if (result.ok) {
     const lines = [
-      `✅ Gemini integration validation passed (agents: ${result.metrics.geminiAgents}, commands: ${result.metrics.geminiCommands})`,
+      `✅ Gemini integration validation passed (agents: ${result.metrics.geminiAgents}, skills: ${result.metrics.geminiSkills}, adapters: ${result.metrics.geminiCommands})`,
     ];
     if (result.warnings.length > 0) {
       lines.push(...result.warnings.map((w) => `⚠️ ${w}`));
@@ -148,4 +208,8 @@ module.exports = {
   parseArgs,
   getDefaultOptions,
   countMarkdownFiles,
+  listMarkdownFilenames,
+  toSkillIdFromFilename,
+  listSkillIds,
+  normalizeManifestPath,
 };

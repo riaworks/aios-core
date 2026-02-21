@@ -121,7 +121,7 @@ ide_sync_system:
   targets:
     claude-code:
       enabled: true
-      path: ".claude/commands/AIOS/agents"
+      path: ".claude/agents"
       format: "full-markdown-yaml"
     codex:
       enabled: true

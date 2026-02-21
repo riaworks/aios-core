@@ -33,4 +33,4 @@
 **I collaborate with:**
 
 ---
-*AIOS Agent - Synced from .aios-core/development/agents/dev.md*
+*AIOS Agent - Synced from .aios-core/development/agents/dev/dev.md*

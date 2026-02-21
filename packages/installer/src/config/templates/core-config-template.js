@@ -101,6 +101,66 @@ function generateCoreConfig(options = {}) {
       'docs/framework/tech-stack.md',
       'docs/framework/source-tree.md',
     ],
+
+    // Per-agent always-load files (loaded during activation)
+    // Purpose: rules, project context, boundaries — NOT domain knowledge.
+    agentAlwaysLoadFiles: {
+      dev: [
+        'docs/framework/coding-standards.md',
+        'docs/framework/tech-stack.md',
+        'docs/framework/source-tree.md',
+      ],
+      qa: [
+        'docs/framework/coding-standards.md',
+        'docs/framework/tech-stack.md',
+        'docs/framework/source-tree.md',
+        '.aios-core/product/data/test-levels-framework.md',
+        '.aios-core/product/data/test-priorities-matrix.md',
+      ],
+      architect: [
+        'docs/framework/tech-stack.md',
+        'docs/framework/source-tree.md',
+      ],
+      devops: [
+        'docs/framework/coding-standards.md',
+        'docs/framework/source-tree.md',
+        'docs/architecture/command-authority-matrix.md',
+      ],
+      pm: [
+        'docs/framework/source-tree.md',
+        'docs/framework/tech-stack.md',
+      ],
+      po: [
+        'docs/framework/source-tree.md',
+        'docs/architecture/command-authority-matrix.md',
+      ],
+      sm: [
+        'docs/framework/source-tree.md',
+        'docs/framework/coding-standards.md',
+      ],
+      analyst: [
+        'docs/framework/tech-stack.md',
+        'docs/framework/source-tree.md',
+      ],
+      'data-engineer': [
+        'docs/framework/tech-stack.md',
+        'docs/framework/source-tree.md',
+      ],
+      'ux-design-expert': [
+        'docs/framework/tech-stack.md',
+        'docs/framework/source-tree.md',
+        'docs/framework/coding-standards.md',
+      ],
+      'aios-master': [
+        '.aios-core/constitution.md',
+        'docs/framework/source-tree.md',
+        'docs/architecture/command-authority-matrix.md',
+      ],
+      'squad-creator': [
+        'docs/framework/source-tree.md',
+      ],
+    },
+
     devLoadAlwaysFilesFallback: [
       'docs/architecture/padroes-de-codigo.md',
       'docs/architecture/pilha-tecnologica.md',

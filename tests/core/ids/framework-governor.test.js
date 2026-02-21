@@ -561,7 +561,7 @@ describe('FrameworkGovernor', () => {
         const result = {
           entityId: 'po',
           found: true,
-          entityPath: '.aios-core/development/agents/po.md',
+          entityPath: '.aios-core/development/agents/po/po.md',
           entityType: 'agent',
           riskLevel: 'NONE',
           directConsumers: [],

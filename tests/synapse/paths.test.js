@@ -17,7 +17,8 @@ const {
 // Set timeout for all tests
 jest.setTimeout(30000);
 
-describe('resolveSynapsePath', () => {
+// @deprecated AGF-6: SYNAPSE path resolution deprecated. .synapse/ directory no longer active.
+describe.skip('resolveSynapsePath', () => {
   let tempDir;
 
   beforeEach(() => {

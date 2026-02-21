@@ -40,8 +40,8 @@ describe('generate-install-manifest', () => {
 
   describe('getFileType', () => {
     it('should identify agent files', () => {
-      expect(getFileType('development/agents/dev.md')).toBe('agent');
-      expect(getFileType('agents/pm.md')).toBe('agent');
+      expect(getFileType('development/agents/dev/dev.md')).toBe('agent');
+      expect(getFileType('agents/pm/pm.md')).toBe('agent');
     });
 
     it('should identify task files', () => {
@@ -80,7 +80,7 @@ describe('generate-install-manifest', () => {
     });
 
     it('should handle Windows-style paths', () => {
-      expect(getFileType('development\\agents\\dev.md')).toBe('agent');
+      expect(getFileType('development\\agents\\dev\\dev.md')).toBe('agent');
     });
   });
 

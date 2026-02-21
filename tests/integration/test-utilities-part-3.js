@@ -117,10 +117,10 @@ console.log('\n\n👥 TEST 4: Agent Load Test (4 agents)\n');
 console.log('-'.repeat(60));
 
 const agents = [
-  { name: 'qa', path: '.aios-core/development/agents/qa.md' },
-  { name: 'po', path: '.aios-core/development/agents/po.md' },
-  { name: 'devops', path: '.aios-core/development/agents/devops.md' },
-  { name: 'dev', path: '.aios-core/development/agents/dev.md' },
+  { name: 'qa', path: '.aios-core/development/agents/qa/qa.md' },
+  { name: 'po', path: '.aios-core/development/agents/po/po.md' },
+  { name: 'devops', path: '.aios-core/development/agents/devops/devops.md' },
+  { name: 'dev', path: '.aios-core/development/agents/dev/dev.md' },
 ];
 
 let agentCheckCount = 0;

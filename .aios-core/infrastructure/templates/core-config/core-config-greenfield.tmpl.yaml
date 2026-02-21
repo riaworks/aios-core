@@ -23,6 +23,56 @@ devLoadAlwaysFiles:
   - docs/architecture/source-tree.md
 
 # =============================================================================
+# PER-AGENT ALWAYS-LOAD FILES
+# Files loaded automatically when each agent activates.
+# Purpose: rules, project context, boundaries — NOT domain knowledge.
+# Domain-specific knowledge is loaded by tasks when needed.
+# =============================================================================
+agentAlwaysLoadFiles:
+  dev:
+    - docs/architecture/coding-standards.md
+    - docs/architecture/tech-stack.md
+    - docs/architecture/source-tree.md
+  qa:
+    - docs/architecture/coding-standards.md
+    - docs/architecture/tech-stack.md
+    - docs/architecture/source-tree.md
+    - .aios-core/product/data/test-levels-framework.md
+    - .aios-core/product/data/test-priorities-matrix.md
+  architect:
+    - docs/architecture/tech-stack.md
+    - docs/architecture/source-tree.md
+  devops:
+    - docs/architecture/coding-standards.md
+    - docs/architecture/source-tree.md
+    - docs/architecture/command-authority-matrix.md
+  pm:
+    - docs/architecture/source-tree.md
+    - docs/architecture/tech-stack.md
+  po:
+    - docs/architecture/source-tree.md
+    - docs/architecture/command-authority-matrix.md
+  sm:
+    - docs/architecture/source-tree.md
+    - docs/architecture/coding-standards.md
+  analyst:
+    - docs/architecture/tech-stack.md
+    - docs/architecture/source-tree.md
+  data-engineer:
+    - docs/architecture/tech-stack.md
+    - docs/architecture/source-tree.md
+  ux-design-expert:
+    - docs/architecture/tech-stack.md
+    - docs/architecture/source-tree.md
+    - docs/architecture/coding-standards.md
+  aios-master:
+    - .aios-core/constitution.md
+    - docs/architecture/source-tree.md
+    - docs/architecture/command-authority-matrix.md
+  squad-creator:
+    - docs/architecture/source-tree.md
+
+# =============================================================================
 # DEPLOYMENT CONFIGURATION
 # All @devops agent tasks read from this section
 # See docs/guides/DEPLOYMENT-GUIDE.md for details

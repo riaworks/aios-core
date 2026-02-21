@@ -208,7 +208,8 @@ describe('PipelineMetrics', () => {
 // SynapseEngine
 // =============================================================================
 
-describe('SynapseEngine', () => {
+// @deprecated AGF-6: SYNAPSE engine integration tests deprecated. SYNAPSE-Lite is now active.
+describe.skip('SynapseEngine', () => {
   let engine;
 
   beforeEach(() => {

@@ -116,12 +116,13 @@ function extractAgentInfoFallback(content) {
 /**
  * Parse a single agent file
  * @param {string} filePath - Path to agent markdown file
+ * @param {string} [relFilename] - Optional relative filename override (e.g. "dev/dev.md")
  * @returns {object} - Parsed agent data
  */
-function parseAgentFile(filePath) {
+function parseAgentFile(filePath, relFilename) {
   const result = {
     path: filePath,
-    filename: path.basename(filePath),
+    filename: relFilename || path.basename(filePath),
     id: path.basename(filePath, '.md'),
     raw: null,
     yaml: null,
@@ -198,13 +199,37 @@ function parseAllAgents(agentsDir) {
     return agents;
   }
 
-  const files = fs.readdirSync(agentsDir).filter(f => f.endsWith('.md'));
+  const seen = new Set();
+  const entries = fs.readdirSync(agentsDir, { withFileTypes: true });
+
+  // Pass 1: subdirectories — {name}/{name}.md (preferred)
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const candidate = path.join(agentsDir, entry.name, `${entry.name}.md`);
+    if (fs.existsSync(candidate)) {
+      const relFilename = `${entry.name}/${entry.name}.md`;
+      const agentData = parseAgentFile(candidate, relFilename);
+      agents.push(agentData);
+      seen.add(entry.name);
+    }
+  }
+
+  // Pass 2: flat files — {name}.md (backward compat fallback)
+  const files = entries
+    .filter((e) => !e.isDirectory() && e.name.endsWith('.md'))
+    .map((e) => e.name)
+    .sort((a, b) => a.localeCompare(b));
 
   for (const file of files) {
+    const id = path.basename(file, '.md');
+    if (seen.has(id)) continue;
     const filePath = path.join(agentsDir, file);
     const agentData = parseAgentFile(filePath);
     agents.push(agentData);
   }
+
+  // Sort by id for deterministic output
+  agents.sort((a, b) => a.id.localeCompare(b.id));
 
   return agents;
 }

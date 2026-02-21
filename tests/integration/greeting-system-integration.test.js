@@ -21,7 +21,9 @@ const execPromise = util.promisify(exec);
 const TEST_AGENTS = ['qa', 'dev', 'pm'];
 const PERFORMANCE_TARGET_MS = 150;
 
-describeIntegration('Unified Greeting System Integration', () => {
+// @deprecated AGF-6: greeting-builder deprecated — replaced by agent .md Enhancement section.
+// Note: using describe.skip instead of describeIntegration.skip (custom fn has no .skip method)
+describe.skip('Unified Greeting System Integration', () => {
   describeIntegration('End-to-End Greeting Generation', () => {
     for (const agentId of TEST_AGENTS) {
       it(`should generate greeting for ${agentId} agent`, async function() {

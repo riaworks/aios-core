@@ -67,7 +67,7 @@ class SkillDispatcher {
 
     /**
      * Mapping from agent IDs to full Skill names
-     * These correspond to files in .claude/commands/AIOS/agents/
+     * These correspond to files in .aios-core/development/agents/
      */
     this.skillMapping = {
       // Core development agents
