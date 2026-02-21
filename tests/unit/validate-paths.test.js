@@ -28,7 +28,7 @@ describe('Path Validator', () => {
     write(path.join(tmpRoot, 'AGENTS.md'), '# Agents\n');
     write(path.join(tmpRoot, '.aios-core', 'product', 'templates', 'ide-rules', 'codex-rules.md'), '# codex\n');
     write(
-      path.join(skillsDir, 'aios-dev', 'SKILL.md'),
+      path.join(skillsDir, 'dev', 'SKILL.md'),
       [
         '# Skill',
         'Load .aios-core/development/agents/dev.md',
@@ -53,7 +53,7 @@ describe('Path Validator', () => {
     write(path.join(tmpRoot, 'AGENTS.md'), 'Path /Users/alan/Code/aios-core');
     write(path.join(tmpRoot, '.aios-core', 'product', 'templates', 'ide-rules', 'codex-rules.md'), '# codex\n');
     write(
-      path.join(skillsDir, 'aios-dev', 'SKILL.md'),
+      path.join(skillsDir, 'dev', 'SKILL.md'),
       [
         '# Skill',
         'Load .aios-core/development/agents/dev.md',
@@ -77,7 +77,7 @@ describe('Path Validator', () => {
   it('fails when skill lacks canonical activation paths', () => {
     write(path.join(tmpRoot, 'AGENTS.md'), '# Agents\n');
     write(path.join(tmpRoot, '.aios-core', 'product', 'templates', 'ide-rules', 'codex-rules.md'), '# codex\n');
-    write(path.join(skillsDir, 'aios-dev', 'SKILL.md'), '# Skill\nUse dev\n');
+    write(path.join(skillsDir, 'dev', 'SKILL.md'), '# Skill\nUse dev\n');
 
     const result = validatePaths({
       projectRoot: tmpRoot,
@@ -90,6 +90,29 @@ describe('Path Validator', () => {
 
     expect(result.ok).toBe(false);
     expect(result.errors.some(error => error.includes('missing canonical source path'))).toBe(true);
-    expect(result.errors.some(error => error.includes('missing canonical greeting script path'))).toBe(true);
+  });
+
+  it('passes for task skills with canonical task source path', () => {
+    write(path.join(tmpRoot, 'AGENTS.md'), '# Agents\n');
+    write(path.join(tmpRoot, '.aios-core', 'product', 'templates', 'ide-rules', 'codex-rules.md'), '# codex\n');
+    write(
+      path.join(skillsDir, 'qa-execute-checklist', 'SKILL.md'),
+      [
+        '# Skill',
+        'Load .aios-core/development/tasks/execute-checklist.md',
+      ].join('\n'),
+    );
+
+    const result = validatePaths({
+      projectRoot: tmpRoot,
+      skillsDir,
+      requiredFiles: [
+        path.join(tmpRoot, 'AGENTS.md'),
+        path.join(tmpRoot, '.aios-core', 'product', 'templates', 'ide-rules', 'codex-rules.md'),
+      ],
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.errors).toEqual([]);
   });
 });

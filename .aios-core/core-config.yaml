@@ -22,6 +22,56 @@ devLoadAlwaysFiles:
   - docs/framework/coding-standards.md
   - docs/framework/tech-stack.md
   - docs/framework/source-tree.md
+# Per-agent always-load files (loaded during activation)
+# Purpose: rules, project context, boundaries — NOT domain knowledge.
+# Domain-specific knowledge is loaded by tasks when needed.
+agentAlwaysLoadFiles:
+  dev:
+    - docs/framework/coding-standards.md
+    - docs/framework/tech-stack.md
+    - docs/framework/source-tree.md
+  qa:
+    - docs/framework/coding-standards.md
+    - docs/framework/tech-stack.md
+    - docs/framework/source-tree.md
+    - .aios-core/product/data/test-levels-framework.md
+    - .aios-core/product/data/test-priorities-matrix.md
+  architect:
+    - docs/framework/tech-stack.md
+    - docs/framework/source-tree.md
+    - docs/architecture/agent-system-architecture.md
+  devops:
+    - docs/framework/coding-standards.md
+    - docs/framework/source-tree.md
+    - docs/architecture/command-authority-matrix.md
+  pm:
+    - docs/framework/source-tree.md
+    - docs/framework/tech-stack.md
+    - docs/stories/backlog.md
+  po:
+    - docs/framework/source-tree.md
+    - docs/stories/backlog.md
+    - docs/architecture/command-authority-matrix.md
+  sm:
+    - docs/framework/source-tree.md
+    - docs/stories/backlog.md
+    - docs/framework/coding-standards.md
+  analyst:
+    - docs/framework/tech-stack.md
+    - docs/framework/source-tree.md
+  data-engineer:
+    - docs/framework/tech-stack.md
+    - docs/framework/source-tree.md
+  ux-design-expert:
+    - docs/framework/tech-stack.md
+    - docs/framework/source-tree.md
+    - docs/framework/coding-standards.md
+  aios-master:
+    - .aios-core/constitution.md
+    - docs/framework/source-tree.md
+    - docs/architecture/command-authority-matrix.md
+  squad-creator:
+    - docs/framework/source-tree.md
 devLoadAlwaysFilesFallback:
   - docs/pt/framework/coding-standards.md
   - docs/pt/framework/tech-stack.md
@@ -308,8 +358,12 @@ ideSync:
   targets:
     claude-code:
       enabled: true
-      path: .claude/commands/AIOS/agents
-      format: full-markdown-yaml
+      path: .claude/agents
+      format: claude-native-agent
+    claude-skills:
+      enabled: true
+      path: .claude/skills
+      format: claude-agent-skill
     codex:
       enabled: true
       path: .codex/agents
@@ -318,10 +372,14 @@ ideSync:
       enabled: true
       path: .gemini/rules/AIOS/agents
       format: full-markdown-yaml
+    gemini-skills:
+      enabled: true
+      path: packages/gemini-aios-extension/skills
+      format: gemini-agent-skill
     github-copilot:
       enabled: true
       path: .github/agents
-      format: full-markdown-yaml
+      format: github-copilot-native-agent
     cursor:
       enabled: true
       path: .cursor/rules/agents
@@ -330,6 +388,10 @@ ideSync:
       enabled: true
       path: .antigravity/rules/agents
       format: cursor-style
+    claude-commands:
+      enabled: true
+      path: .claude/commands/AIOS/agents
+      format: claude-command-wrapper
   redirects: {}
   validation:
     strictMode: true

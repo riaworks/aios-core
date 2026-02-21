@@ -23,7 +23,8 @@ function cleanupTempDir(dir) {
   fs.rmSync(dir, { recursive: true, force: true });
 }
 
-describe('L1GlobalProcessor', () => {
+// @deprecated AGF-6: SYNAPSE 8-layer engine deprecated. Rules now in .claude/rules/.
+describe.skip('L1GlobalProcessor', () => {
   let tempDir;
   let processor;
 

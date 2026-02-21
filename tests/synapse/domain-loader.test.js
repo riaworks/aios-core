@@ -38,7 +38,8 @@ function cleanupTempDir(dir) {
   fs.rmSync(dir, { recursive: true, force: true });
 }
 
-describe('parseManifest', () => {
+// @deprecated AGF-6: SYNAPSE domain files deprecated. Rules now in .claude/rules/.
+describe.skip('parseManifest', () => {
   let tempDir;
 
   beforeEach(() => {

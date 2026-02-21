@@ -1,4 +1,10 @@
 /**
+ * @deprecated Since AGF-6 (2026-02-20). Replaced by activation report defined in agent .md Enhancement section.
+ * Preserved for rollback during 1 sprint. Remove after AGF-7 confirmation.
+ * Greeting is now defined directly in each .claude/agents/{id}.md persona file.
+ */
+
+/**
  * Greeting Builder - Context-Aware Agent Greeting System (Core Logic)
  *
  * ARCHITECTURE NOTE:

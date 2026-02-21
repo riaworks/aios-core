@@ -29,7 +29,8 @@ const CONFIG_PATH = path.join(process.cwd(), '.aios-core', 'core-config.yaml');
 const BACKUP_PATH = path.join(process.cwd(), '.aios-core', 'core-config.yaml.backup');
 const TEST_CONFIG_PATH = path.join(__dirname, '..', 'fixtures', 'test-core-config.yaml');
 
-describe('GreetingPreferenceManager', () => {
+// @deprecated AGF-6: greeting-builder deprecated — replaced by agent .md Enhancement section.
+describe.skip('GreetingPreferenceManager', () => {
   let manager;
   let originalConfig;
   let testConfig;

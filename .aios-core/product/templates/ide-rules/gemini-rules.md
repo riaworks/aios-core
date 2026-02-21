@@ -64,7 +64,7 @@ Preferencia de ativacao:
 
 Ao ativar agente:
 - carregar definicao completa do agente
-- renderizar greeting via `node .aios-core/development/scripts/generate-greeting.js <agent-id>`
+- apresentar-se com um greeting breve identificando sua persona
 - manter persona ativa ate `*exit`
 
 Atalhos recomendados no Gemini:

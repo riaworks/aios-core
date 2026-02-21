@@ -21,7 +21,8 @@ const ENGINE_PATH = path.join(PROJECT_ROOT, '.aios-core', 'core', 'synapse', 'en
 const synapseExists = fs.existsSync(SYNAPSE_PATH);
 const engineExists = fs.existsSync(ENGINE_PATH);
 
-const describeIfReady = (synapseExists && engineExists) ? describe : describe.skip;
+// @deprecated AGF-6: SYNAPSE E2E tests deprecated. SYNAPSE-Lite is now active.
+const describeIfReady = describe.skip;
 
 /**
  * Build a session object for a given prompt count.

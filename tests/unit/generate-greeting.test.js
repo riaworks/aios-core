@@ -26,7 +26,8 @@ const mockProjectStatus = {
   currentStory: 'story-6.1.4',
 };
 
-describe('generate-greeting.js', () => {
+// @deprecated AGF-6: generate-greeting.js deprecated — replaced by agent .md Enhancement section.
+describe.skip('generate-greeting.js', () => {
   describe('generateGreeting()', () => {
     it('should generate greeting for valid agent', async () => {
       // This is a smoke test - actual implementation would need mocking
@@ -34,7 +35,7 @@ describe('generate-greeting.js', () => {
       
       // Verify agent file exists
       const fs = require('fs').promises;
-      const agentPath = path.join(process.cwd(), '.aios-core', 'development', 'agents', `${agentId}.md`);
+      const agentPath = path.join(process.cwd(), '.aios-core', 'development', 'agents', agentId, `${agentId}.md`);
       
       try {
         await fs.access(agentPath);

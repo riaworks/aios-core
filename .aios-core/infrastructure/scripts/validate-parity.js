@@ -9,6 +9,7 @@ const { validateClaudeIntegration } = require('./validate-claude-integration');
 const { validateCodexIntegration } = require('./validate-codex-integration');
 const { validateGeminiIntegration } = require('./validate-gemini-integration');
 const { validateCodexSkills } = require('./codex-skills-sync/validate');
+const { validateTaskSkills } = require('./task-skills-sync/validate');
 const { validatePaths } = require('./validate-paths');
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -39,15 +40,35 @@ function runSyncValidate(ide, projectRoot) {
   };
 }
 
+function getPackageVersion(projectRoot = process.cwd()) {
+  try {
+    const packageJsonPath = path.join(projectRoot, 'package.json');
+    if (!fs.existsSync(packageJsonPath)) return null;
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    return packageJson.version || null;
+  } catch (_) {
+    return null;
+  }
+}
+
 function getDefaultContractPath(projectRoot = process.cwd()) {
-  return path.join(
+  const compatibilityDir = path.join(
     projectRoot,
     '.aios-core',
     'infrastructure',
     'contracts',
     'compatibility',
-    'aios-4.0.4.yaml',
   );
+  const packageVersion = getPackageVersion(projectRoot);
+
+  if (packageVersion) {
+    const packageContractPath = path.join(compatibilityDir, `aios-${packageVersion}.yaml`);
+    if (fs.existsSync(packageContractPath)) {
+      return packageContractPath;
+    }
+  }
+
+  return path.join(compatibilityDir, 'aios-4.0.4.yaml');
 }
 
 function loadCompatibilityContract(contractPath) {
@@ -223,6 +244,7 @@ function runParityValidation(options = {}, deps = {}) {
   const runCodexIntegration = deps.validateCodexIntegration || validateCodexIntegration;
   const runGeminiIntegration = deps.validateGeminiIntegration || validateGeminiIntegration;
   const runCodexSkills = deps.validateCodexSkills || validateCodexSkills;
+  const runTaskSkills = deps.validateTaskSkills || validateTaskSkills;
   const runPaths = deps.validatePaths || validatePaths;
   const resolvedContractPath = options.contractPath
     ? path.resolve(projectRoot, options.contractPath)
@@ -244,6 +266,7 @@ function runParityValidation(options = {}, deps = {}) {
     { id: 'github-copilot-sync', exec: () => runSync('github-copilot', projectRoot) },
     { id: 'antigravity-sync', exec: () => runSync('antigravity', projectRoot) },
     { id: 'codex-skills', exec: () => runCodexSkills({ projectRoot, strict: true, quiet: true }) },
+    { id: 'task-skills', exec: () => runTaskSkills({ projectRoot, strict: true, quiet: true }) },
     { id: 'paths', exec: () => runPaths({ projectRoot }) },
   ];
 

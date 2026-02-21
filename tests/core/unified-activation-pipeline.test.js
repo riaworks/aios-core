@@ -239,7 +239,8 @@ const _pendingMockTimers = [];
 // Tests
 // ============================================================
 
-describe('UnifiedActivationPipeline', () => {
+// @deprecated AGF-6: UAP deprecated — replaced by SessionStart hook + agent frontmatter.
+describe.skip('UnifiedActivationPipeline', () => {
   let pipeline;
 
   beforeEach(() => {

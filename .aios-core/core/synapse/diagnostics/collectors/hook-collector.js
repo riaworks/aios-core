@@ -1,13 +1,18 @@
 /**
  * Hook Collector — Verifies SYNAPSE hook registration and file integrity.
  *
+ * NOTE: The SYNAPSE UserPromptSubmit hook is DEPRECATED. The skills-first
+ * architecture (CLAUDE.md + agent system prompts + .claude/rules/) provides
+ * equivalent context injection natively. The hook check now reports INFO
+ * instead of FAIL when the hook is not registered.
+ *
  * Checks:
- * - settings.local.json has UserPromptSubmit hook entry
+ * - settings.local.json has UserPromptSubmit hook entry (deprecated, INFO only)
  * - Hook file exists at expected path
  * - Hook file is valid Node.js (can be required)
  *
  * @module core/synapse/diagnostics/collectors/hook-collector
- * @version 1.0.0
+ * @version 1.1.0
  * @created Story SYN-13
  */
 
@@ -25,7 +30,7 @@ const path = require('path');
 function collectHookStatus(projectRoot) {
   const checks = [];
 
-  // Check 1: settings.local.json has hook entry
+  // Check 1: settings.local.json has hook entry (DEPRECATED — INFO only)
   const settingsPath = path.join(projectRoot, '.claude', 'settings.local.json');
   let hasHookRegistered = false;
 
@@ -51,16 +56,16 @@ function collectHookStatus(projectRoot) {
 
       checks.push({
         name: 'Hook registered',
-        status: hasHookRegistered ? 'PASS' : 'FAIL',
+        status: hasHookRegistered ? 'PASS' : 'INFO',
         detail: hasHookRegistered
           ? 'settings.local.json has UserPromptSubmit entry for synapse-engine'
-          : 'No synapse-engine hook found in settings.local.json',
+          : 'DEPRECATED — hook not registered (not required with skills-first architecture)',
       });
     } else {
       checks.push({
         name: 'Hook registered',
-        status: 'FAIL',
-        detail: 'settings.local.json not found',
+        status: 'INFO',
+        detail: 'DEPRECATED — hook not registered (not required with skills-first architecture)',
       });
     }
   } catch (error) {

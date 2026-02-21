@@ -342,7 +342,7 @@ async function verifyGap2() {
   );
 
   // 2.13 aios-master has validate-workflow command
-  const masterMd = fs.readFileSync(path.join(ROOT, '.aios-core/development/agents/aios-master.md'), 'utf-8');
+  const masterMd = fs.readFileSync(path.join(ROOT, '.aios-core/development/agents/aios-master/aios-master.md'), 'utf-8');
   assert(
     masterMd.includes('name: validate-workflow'),
     '2.13a aios-master has validate-workflow command',
@@ -669,7 +669,7 @@ async function verifyGap3() {
     );
 
     // 3.22 aios-master has run-workflow command
-    const masterMd = fs.readFileSync(path.join(ROOT, '.aios-core/development/agents/aios-master.md'), 'utf-8');
+    const masterMd = fs.readFileSync(path.join(ROOT, '.aios-core/development/agents/aios-master/aios-master.md'), 'utf-8');
     assert(
       masterMd.includes('name: run-workflow'),
       '3.22a aios-master has run-workflow command',

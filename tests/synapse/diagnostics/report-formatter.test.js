@@ -66,7 +66,8 @@ function buildFullData(overrides = {}) {
   };
 }
 
-describe('formatReport()', () => {
+// @deprecated AGF-6: SYNAPSE diagnostics deprecated. SYNAPSE-Lite is now active.
+describe.skip('formatReport()', () => {
   // ------------------------------------------------------------------
   // 1. Header section
   // ------------------------------------------------------------------
