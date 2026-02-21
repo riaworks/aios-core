@@ -63,7 +63,7 @@ After saving, send a message to the team lead with a summary.
 <!-- Parameters:
   agent_name=Aria,
   agent_role=Architect,
-  agent_file_path=.claude/commands/AIOS/agents/architect.md,
+  agent_file_path=.aios-core/development/agents/architect.md,
   context_category=Architecture,
   mission_description=Design the authentication module,
   output_path=docs/architecture/auth-design.md,
@@ -80,7 +80,7 @@ const template = await loadBlock('agent-prompt-template');
 const prompt = await renderTemplate(template, {
   agent_name: 'Aria',
   agent_role: 'Architect',
-  agent_file_path: '.claude/commands/AIOS/agents/architect.md',
+  agent_file_path: '.aios-core/development/agents/architect.md',
   context_category: 'Architecture',
   context_from_user: 'We need to design auth for a multi-tenant SaaS.',
   mission_description: 'Create detailed authentication architecture document.',

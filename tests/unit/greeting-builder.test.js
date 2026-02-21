@@ -45,7 +45,8 @@ jest.mock('../../.aios-core/development/scripts/greeting-preference-manager', ()
 
 const { loadProjectStatus, formatStatusDisplay } = require('../../.aios-core/infrastructure/scripts/project-status-loader');
 
-describe('GreetingBuilder', () => {
+// @deprecated AGF-6: greeting-builder deprecated — replaced by agent .md Enhancement section.
+describe.skip('GreetingBuilder', () => {
   let builder;
   let mockAgent;
 

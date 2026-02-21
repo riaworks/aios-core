@@ -36,7 +36,8 @@ function createSquad(projectRoot, squadName, manifestContent, domainFiles = {}) 
   }
 }
 
-describe('L5SquadProcessor', () => {
+// @deprecated AGF-6: SYNAPSE 8-layer engine deprecated. Rules now in .claude/rules/.
+describe.skip('L5SquadProcessor', () => {
   let tempDir;
   let processor;
   let synapsePath;

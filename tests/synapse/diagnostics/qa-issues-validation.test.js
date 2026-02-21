@@ -53,7 +53,8 @@ function cleanupDir(dir) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Issue #1: Quality Score Artificially Low by Staleness Penalty
 // ─────────────────────────────────────────────────────────────────────────────
-describe('Issue #1: Staleness should degrade, not zero out UAP score', () => {
+// @deprecated AGF-6: SYNAPSE diagnostics deprecated. SYNAPSE-Lite is now active.
+describe.skip('Issue #1: Staleness should degrade, not zero out UAP score', () => {
   let project;
 
   beforeEach(() => { project = createTempProject(); });

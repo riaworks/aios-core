@@ -60,7 +60,8 @@ function writeFile(filePath, content) {
 // hook-collector
 // ---------------------------------------------------------------------------
 
-describe('hook-collector: collectHookStatus', () => {
+// @deprecated AGF-6: SYNAPSE diagnostics deprecated. SYNAPSE-Lite is now active.
+describe.skip('hook-collector: collectHookStatus', () => {
   beforeEach(() => {
     tmpDir = createTmpDir();
   });
@@ -90,15 +91,15 @@ describe('hook-collector: collectHookStatus', () => {
     expect(registered.detail).toContain('synapse-engine');
   });
 
-  test('returns FAIL when settings.local.json is missing', () => {
+  test('returns INFO (deprecated) when settings.local.json is missing', () => {
     const result = collectHookStatus(tmpDir);
 
     const registered = result.checks.find((c) => c.name === 'Hook registered');
-    expect(registered.status).toBe('FAIL');
-    expect(registered.detail).toContain('not found');
+    expect(registered.status).toBe('INFO');
+    expect(registered.detail).toContain('DEPRECATED');
   });
 
-  test('returns FAIL when hook not registered in settings', () => {
+  test('returns INFO (deprecated) when hook not registered in settings', () => {
     writeJson(path.join(tmpDir, '.claude', 'settings.local.json'), {
       hooks: {
         UserPromptSubmit: ['node some-other-hook.js'],
@@ -108,8 +109,8 @@ describe('hook-collector: collectHookStatus', () => {
     const result = collectHookStatus(tmpDir);
 
     const registered = result.checks.find((c) => c.name === 'Hook registered');
-    expect(registered.status).toBe('FAIL');
-    expect(registered.detail).toContain('No synapse-engine hook found');
+    expect(registered.status).toBe('INFO');
+    expect(registered.detail).toContain('DEPRECATED');
   });
 
   test('returns PASS for hook file exists when file is present', () => {

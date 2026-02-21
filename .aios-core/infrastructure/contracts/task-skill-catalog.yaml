@@ -1,0 +1,68 @@
+schema_version: 1
+updated_at: "2026-02-17"
+source:
+  tasks_dir: ".aios-core/development/tasks"
+
+targets:
+  codex:
+    enabled: true
+    path: ".codex/skills"
+  claude:
+    enabled: true
+    path: ".claude/skills"
+  gemini:
+    enabled: false
+    path: "packages/gemini-aios-extension/skills/tasks"
+
+agent_aliases:
+  github-devops: devops
+  aios-developer: dev
+  ux: ux-design-expert
+  db: data-engineer
+
+allowlist:
+  - task_id: execute-checklist
+    agent: qa
+    reason: "Critical quality and release checklists used across squads"
+  - task_id: create-doc
+    agent: po
+    reason: "High-frequency documentation workflow"
+  - task_id: create-deep-research-prompt
+    agent: analyst
+    reason: "Reusable deep research setup for discovery and analysis"
+  - task_id: correct-course
+    agent: dev
+    reason: "Standard recovery flow when implementation drifts"
+  - task_id: document-project
+    agent: architect
+    reason: "Project documentation baseline used by multiple agents"
+  - task_id: shard-doc
+    agent: po
+    reason: "Large-document sharding for maintainability"
+  - task_id: advanced-elicitation
+    agent: analyst
+    reason: "Interactive elicitation workflow for ambiguous requirements"
+  - task_id: create-next-story
+    agent: po
+    reason: "Core backlog continuation workflow"
+  - task_id: validate-next-story
+    agent: po
+    reason: "Story readiness gate before execution"
+  - task_id: create-worktree
+    agent: devops
+    reason: "Parallel development setup workflow"
+  - task_id: list-worktrees
+    agent: devops
+    reason: "Operational worktree inspection workflow"
+  - task_id: remove-worktree
+    agent: devops
+    reason: "Safe worktree cleanup workflow"
+  - task_id: cleanup-worktrees
+    agent: devops
+    reason: "Batch cleanup workflow for stale branches"
+  - task_id: pre-push-quality-gate
+    agent: devops
+    reason: "Pre-push quality gate - lint, test, typecheck"
+  - task_id: dev-develop-story
+    agent: dev
+    reason: "Core story implementation workflow"

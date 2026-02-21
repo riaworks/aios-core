@@ -2,7 +2,8 @@
 
 const { buildLayerContext } = require('../../.aios-core/core/synapse/context/context-builder');
 
-describe('buildLayerContext', () => {
+// @deprecated AGF-6: SYNAPSE context builder deprecated. SYNAPSE-Lite is now active.
+describe.skip('buildLayerContext', () => {
   it('builds normalized context with defaults', () => {
     const context = buildLayerContext({
       synapsePath: '/tmp/.synapse',

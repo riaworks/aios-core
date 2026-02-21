@@ -47,7 +47,8 @@ function buildHookMetrics(overrides = {}) {
 beforeEach(() => { tmpDir = createTmpDir(); });
 afterEach(() => { fs.rmSync(tmpDir, { recursive: true, force: true }); });
 
-describe('collectConsistencyMetrics', () => {
+// @deprecated AGF-6: SYNAPSE diagnostics deprecated. SYNAPSE-Lite is now active.
+describe.skip('collectConsistencyMetrics', () => {
   test('available=false when no metrics files', () => {
     const result = collectConsistencyMetrics(tmpDir);
     expect(result.available).toBe(false);

@@ -32,7 +32,7 @@ describe('validate-parity', () => {
   function buildMockContract() {
     return {
       release: 'AIOS 4.0.4',
-      global_required_checks: ['paths'],
+      global_required_checks: ['task-skills', 'paths'],
       ide_matrix: [
         { ide: 'claude-code', display_name: 'Claude Code', expected_status: 'Works', required_checks: ['claude-sync', 'claude-integration'] },
         { ide: 'gemini', display_name: 'Gemini CLI', expected_status: 'Works', required_checks: ['gemini-sync', 'gemini-integration'] },
@@ -55,13 +55,14 @@ describe('validate-parity', () => {
         validateCodexIntegration: () => ok,
         validateGeminiIntegration: () => ok,
         validateCodexSkills: () => ok,
+        validateTaskSkills: () => ok,
         validatePaths: () => ok,
         loadCompatibilityContract: () => buildMockContract(),
       },
     );
 
     expect(result.ok).toBe(true);
-    expect(result.checks).toHaveLength(11);
+    expect(result.checks).toHaveLength(12);
     expect(result.checks.every((c) => c.ok)).toBe(true);
     expect(result.contractViolations).toHaveLength(0);
   });
@@ -82,6 +83,7 @@ describe('validate-parity', () => {
         },
         validateGeminiIntegration: () => ({ ok: true, errors: [], warnings: [] }),
         validateCodexSkills: () => ({ ok: true, errors: [], warnings: [] }),
+        validateTaskSkills: () => ({ ok: true, errors: [], warnings: [] }),
         validatePaths: () => ({ ok: true, errors: [], warnings: [] }),
         loadCompatibilityContract: () => buildMockContract(),
       },
@@ -105,6 +107,7 @@ describe('validate-parity', () => {
         validateCodexIntegration: () => ok,
         validateGeminiIntegration: () => ok,
         validateCodexSkills: () => ok,
+        validateTaskSkills: () => ok,
         validatePaths: () => ok,
         loadCompatibilityContract: () => buildMockContract(),
       },
@@ -146,6 +149,7 @@ describe('validate-parity', () => {
         validateCodexIntegration: () => ok,
         validateGeminiIntegration: () => ok,
         validateCodexSkills: () => ok,
+        validateTaskSkills: () => ok,
         validatePaths: () => ok,
         loadCompatibilityContract: (contractPath) => {
           if (contractPath.endsWith('aios-4.0.3.yaml')) {

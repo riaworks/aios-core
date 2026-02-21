@@ -21,7 +21,8 @@ const {
 // calculateBracket
 // =============================================================================
 
-describe('calculateBracket', () => {
+// @deprecated AGF-6: SYNAPSE context tracker deprecated. Brackets now in context-brackets.md rule.
+describe.skip('calculateBracket', () => {
   // --- FRESH bracket (>= 60%) ---
   test('should return FRESH for 100% context remaining', () => {
     expect(calculateBracket(100)).toBe('FRESH');

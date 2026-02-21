@@ -34,7 +34,7 @@ function countSkillFiles(skillsDir) {
   if (!fs.existsSync(skillsDir)) return 0;
   const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
   return entries
-    .filter((entry) => entry.isDirectory() && entry.name.startsWith('aios-'))
+    .filter((entry) => entry.isDirectory())
     .filter((entry) => fs.existsSync(path.join(skillsDir, entry.name, 'SKILL.md')))
     .length;
 }
@@ -71,12 +71,12 @@ function validateCodexIntegration(options = {}) {
   const codexAgentsCount = countMarkdownFiles(resolved.agentsDir);
   const codexSkillsCount = countSkillFiles(resolved.skillsDir);
 
-  if (sourceCount > 0 && codexAgentsCount !== sourceCount) {
-    warnings.push(`Codex agent count differs from source (${codexAgentsCount}/${sourceCount})`);
+  if (sourceCount > 0 && codexAgentsCount < sourceCount) {
+    warnings.push(`Codex agent count is lower than source (${codexAgentsCount}/${sourceCount})`);
   }
 
-  if (sourceCount > 0 && codexSkillsCount !== sourceCount) {
-    warnings.push(`Codex skill count differs from source (${codexSkillsCount}/${sourceCount})`);
+  if (sourceCount > 0 && codexSkillsCount < sourceCount) {
+    warnings.push(`Codex skill count is lower than source (${codexSkillsCount}/${sourceCount})`);
   }
 
   return {

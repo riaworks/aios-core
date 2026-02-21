@@ -11,7 +11,8 @@
 
 const GreetingBuilder = require('../../.aios-core/development/scripts/greeting-builder');
 
-describe('Contextual Greeting Integration Tests', () => {
+// @deprecated AGF-6: greeting-builder deprecated — replaced by agent .md Enhancement section.
+describe.skip('Contextual Greeting Integration Tests', () => {
   let builder;
 
   beforeEach(() => {

@@ -90,7 +90,8 @@ afterEach(() => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
-describe('collectTimingMetrics — UAP metrics', () => {
+// @deprecated AGF-6: SYNAPSE diagnostics deprecated. SYNAPSE-Lite is now active.
+describe.skip('collectTimingMetrics — UAP metrics', () => {
   test('returns available=true when uap-metrics.json exists', () => {
     writeJson(path.join(tmpDir, '.synapse', 'metrics', 'uap-metrics.json'), buildUapMetrics());
 

@@ -10,6 +10,7 @@ const {
   hashContent,
   fileExists,
   readFileIfExists,
+  collectMarkdownRelativePaths,
   validateIdeSync,
   validateAllIdes,
   formatValidationReport,
@@ -77,6 +78,20 @@ describe('validator', () => {
 
     it('should return null for non-existent file', () => {
       expect(readFileIfExists(path.join(tempDir, 'missing.txt'))).toBeNull();
+    });
+  });
+
+  describe('collectMarkdownRelativePaths', () => {
+    it('collects nested markdown files with normalized relative paths', () => {
+      const root = path.join(tempDir, 'nested-md');
+      fs.ensureDirSync(path.join(root, 'a', 'b'));
+      fs.writeFileSync(path.join(root, 'root.md'), '# root');
+      fs.writeFileSync(path.join(root, 'a', 'child.md'), '# child');
+      fs.writeFileSync(path.join(root, 'a', 'b', 'leaf.md'), '# leaf');
+      fs.writeFileSync(path.join(root, 'a', 'b', 'ignore.txt'), 'nope');
+
+      const files = collectMarkdownRelativePaths(root).sort();
+      expect(files).toEqual(['a/b/leaf.md', 'a/child.md', 'root.md']);
     });
   });
 

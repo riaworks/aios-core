@@ -93,7 +93,8 @@ afterEach(() => {
 // 1. Happy Path — Writes _active-agent.json when .synapse/ exists
 // =============================================================================
 
-describe('UAP Session Bridge — Happy Path', () => {
+// @deprecated AGF-6: UAP Session Bridge deprecated. UAP replaced by SessionStart hook.
+describe.skip('UAP Session Bridge — Happy Path', () => {
   test('writes _active-agent.json when .synapse/ directory exists', () => {
     // Arrange: create .synapse/ but NOT sessions/
     const synapsePath = path.join(tmpDir, '.synapse');

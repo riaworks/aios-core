@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 /**
+ * @deprecated Since AGF-6 (2026-02-20). Replaced by activation report in agent .md frontmatter.
+ * Preserved for rollback during 1 sprint. Remove after AGF-7 confirmation.
+ */
+
+/**
  * Unified Greeting Generator - CLI Wrapper
  *
  * Story ACT-6: Refactored as thin wrapper around ActivationRuntime.

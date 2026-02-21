@@ -10,6 +10,21 @@ const FORBIDDEN_ABSOLUTE_PATTERNS = [
   /[A-Za-z]:\\Users\\[^\s\\'"]+/g,
 ];
 
+const AGENT_TASK_SKILL_PATTERN = [
+  'master',
+  'analyst',
+  'architect',
+  'data-engineer',
+  'dev',
+  'devops',
+  'pm',
+  'po',
+  'qa',
+  'sm',
+  'squad-creator',
+  'ux-design-expert',
+].join('|');
+
 function getDefaultOptions() {
   const projectRoot = process.cwd();
   return {
@@ -35,7 +50,7 @@ function parseArgs(argv = process.argv.slice(2)) {
 function listSkillFiles(skillsDir) {
   if (!fs.existsSync(skillsDir)) return [];
   return fs.readdirSync(skillsDir, { withFileTypes: true })
-    .filter(entry => entry.isDirectory() && entry.name.startsWith('aios-'))
+    .filter(entry => entry.isDirectory())
     .map(entry => path.join(skillsDir, entry.name, 'SKILL.md'))
     .filter(file => fs.existsSync(file));
 }
@@ -54,14 +69,26 @@ function collectAbsolutePathViolations(content, filePath) {
   return errors;
 }
 
+function isTaskSkillFile(filePath) {
+  return new RegExp(
+    `(^|/)(?:aios-task-[^/]+|aios-master-[^/]+|(?:${AGENT_TASK_SKILL_PATTERN})-[^/]+)/SKILL\\.md$`,
+  ).test(String(filePath || '').replace(/\\/g, '/'));
+}
+
 function validateSkillPathConventions(content, filePath) {
   const errors = [];
+
+  if (isTaskSkillFile(filePath)) {
+    if (!content.includes('.aios-core/development/tasks/')) {
+      errors.push(`${filePath} missing canonical source path ".aios-core/development/tasks/"`);
+    }
+    return errors;
+  }
+
   if (!content.includes('.aios-core/development/agents/')) {
     errors.push(`${filePath} missing canonical source path ".aios-core/development/agents/"`);
   }
-  if (!content.includes('.aios-core/development/scripts/generate-greeting.js')) {
-    errors.push(`${filePath} missing canonical greeting script path`);
-  }
+  // generate-greeting.js was removed — greeting is now inline in the agent's activation flow
   return errors;
 }
 
@@ -138,5 +165,6 @@ module.exports = {
   getDefaultOptions,
   listSkillFiles,
   collectAbsolutePathViolations,
+  isTaskSkillFile,
   validateSkillPathConventions,
 };

@@ -3,7 +3,7 @@
  * @story 6.19 - IDE Command Auto-Sync System
  *
  * Format: Full markdown file with embedded YAML block
- * Target: .claude/commands/AIOS/agents/*.md
+ * Target: .claude/agents/*.md (native Claude Code agents)
  */
 
 /**
@@ -74,7 +74,7 @@ ${icon} **${name}** - ${title}
  * @returns {string} - Target filename
  */
 function getFilename(agentData) {
-  return agentData.filename;
+  return require('path').basename(agentData.filename);
 }
 
 module.exports = {

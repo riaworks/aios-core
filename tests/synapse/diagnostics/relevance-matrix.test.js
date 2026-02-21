@@ -32,7 +32,8 @@ function writeJson(filePath, data) {
 beforeEach(() => { tmpDir = createTmpDir(); });
 afterEach(() => { fs.rmSync(tmpDir, { recursive: true, force: true }); });
 
-describe('collectRelevanceMatrix', () => {
+// @deprecated AGF-6: SYNAPSE diagnostics deprecated. SYNAPSE-Lite is now active.
+describe.skip('collectRelevanceMatrix', () => {
   test('available=false when no metrics', () => {
     const result = collectRelevanceMatrix(tmpDir);
     expect(result.available).toBe(false);

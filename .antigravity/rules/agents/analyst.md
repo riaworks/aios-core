@@ -38,4 +38,4 @@ NOT for: PRD creation or product strategy → Use @pm. Technical architecture de
 **I collaborate with:**
 
 ---
-*AIOS Agent - Synced from .aios-core/development/agents/analyst.md*
+*AIOS Agent - Synced from .aios-core/development/agents/analyst/analyst.md*
